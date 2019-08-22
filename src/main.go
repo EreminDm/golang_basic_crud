@@ -39,7 +39,7 @@ func main() {
 		r.GET("/list/:id", getPersonalDatabyID) //url example: http://localhost:port/person/list/{id}
 		r.POST("/add", insertPersonalData)
 		r.PUT("/update", updatePersonalData)
-		r.DELETE("/remove", deletePersonalData)
+		r.DELETE("/remove/:id", deletePersonalData) //url example: http://localhost:port/person/remove/{id}
 	}
 
 	// PORT environment define to 8000
