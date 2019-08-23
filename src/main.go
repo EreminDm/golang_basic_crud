@@ -30,6 +30,17 @@ func init() {
 }
 
 func main() {
+	router := SetupRouter()
+	// PORT environment define to 8000
+	err := router.Run(":8000")
+	if err != nil {
+		log.Panic(err)
+	}
+
+}
+
+//SetupRouter router configuration
+func SetupRouter() *gin.Engine {
 	// Creates a gin router with default middleware
 	router := gin.Default()
 	//Creates routing group /person for work with PersonalData
@@ -41,11 +52,5 @@ func main() {
 		r.PUT("/update", updatePersonalData)
 		r.DELETE("/remove/:id", deletePersonalData) //url example: http://localhost:port/person/remove/{id}
 	}
-
-	// PORT environment define to 8000
-	err := router.Run(":8000")
-	if err != nil {
-		log.Panic(err)
-	}
-
+	return router
 }
