@@ -20,14 +20,15 @@ func getAllPersonalDataList(c *gin.Context) {
 //get personal data by id
 func getPersonalDatabyID(c *gin.Context) {
 	idvalue := c.Param("id")
-	result, err := SelectPersonalData("_id", idvalue)
+	result, err, httpstatus := SelectPersonalData("_id", idvalue)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(httpstatus, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	c.JSON(httpstatus, result)
 }
 
+// prepare to insert new data to DB
 func insertPersonalData(c *gin.Context) {
 	var p PersonalData
 	if err := c.ShouldBindJSON(&p); err != nil {
@@ -43,7 +44,7 @@ func insertPersonalData(c *gin.Context) {
 		return
 	}
 	fmt.Println(insertResult)
-	c.JSON(http.StatusOK, gin.H{"status": "Success"})
+	c.JSON(http.StatusCreated, gin.H{"status": "Success"})
 
 }
 
