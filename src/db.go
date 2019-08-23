@@ -10,6 +10,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// connectionURI address for monog db localDB connected.
+const (
+	connectionURI = "192.168.99.100:27017"
+	database      = "personal_data"
+	collection    = "information"
+)
+
 // mongoClient to mongo db connections,
 // mongoCollection for work with documents inside colletion.
 var (
@@ -22,14 +29,14 @@ var (
 func MongodbURIConnection() error {
 	var err error
 	// setting client options.
-	clientOption := options.Client().ApplyURI("mongodb://" + ConnectionURI)
+	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
 	mongoClient, err = mongo.Connect(context.TODO(), clientOption)
 	if err != nil {
 		log.Printf(`MongodbConnection func, error: %v`, err)
 		return err
 	}
 	log.Printf("MongoDB client connected")
-	mongoCollection = mongoClient.Database(Database).Collection(Collection)
+	mongoCollection = mongoClient.Database(database).Collection(collection)
 	return nil
 }
 
