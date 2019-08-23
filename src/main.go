@@ -2,22 +2,9 @@ package main
 
 import (
 	"log"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-)
-
-var (
-	//ConnectionURI address for monog db localDB connected
-	//if you use another DB address please share it by env
-	ConnectionURI = "192.168.99.100:27017"
-	//Database name if you use another DB name please share it by env
-	Database string
-	//Collection name if you use another DB name please share it by env
-	Collection string
-
-	//Mongo Client to mongo db connections
-	Mongo *mongo.Client
+	"github.com/gorilla/mux"
 )
 
 func init() {
@@ -25,32 +12,19 @@ func init() {
 	if err != nil {
 		log.Fatal(`Couldn't connect to DB`)
 	}
-	Database = `personal_data`
-	Collection = `information`
+
 }
 
 func main() {
-	router := SetupRouter()
+	r := mux.NewRouter()
+
+	r.HandleFunc("/", personalData).Methods("GET")
+	r.HandleFunc("/", createPersonalData).Methods("POST")
+	r.HandleFunc("/{id}", personalDataByID).Methods("GET")
+	r.HandleFunc("/{id}", updatePersonalData).Methods("PUT")
+	r.HandleFunc("/{id}", removePersonalData).Methods("DELETE")
+
 	// PORT environment define to 8000
-	err := router.Run(":8000")
-	if err != nil {
-		log.Panic(err)
-	}
+	http.ListenAndServe(":8000", r)
 
-}
-
-//SetupRouter router configuration
-func SetupRouter() *gin.Engine {
-	// Creates a gin router with default middleware
-	router := gin.Default()
-	//Creates routing group /person for work with PersonalData
-	r := router.Group("/persons")
-	{
-		r.GET("/list", getAllPersonalDataList)
-		r.GET("/list/:id", getPersonalDatabyID) //url example: http://localhost:port/person/list/{id}
-		r.POST("/add", insertPersonalData)
-		r.PUT("/update", updatePersonalData)
-		r.DELETE("/remove/:id", deletePersonalData) //url example: http://localhost:port/person/remove/{id}
-	}
-	return router
 }

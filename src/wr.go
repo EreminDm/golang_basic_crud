@@ -1,75 +1,110 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
-// Get list of personal data info
-func getAllPersonalDataList(c *gin.Context) {
-	result, err := SelectAllPersonalData()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, result)
+func errRespons(w http.ResponseWriter, code int, err error) {
+	log.Println(err)
+	w.WriteHeader(code)
+	w.Write([]byte(err.Error()))
+}
+func successResponce(w http.ResponseWriter, code int, message string) {
+	w.WriteHeader(code)
+	w.Write([]byte(message))
 }
 
-//get personal data by id
-func getPersonalDatabyID(c *gin.Context) {
-	idvalue := c.Param("id")
-	result, err, httpstatus := SelectPersonalData("_id", idvalue)
+// personalData getes list of personal data info.
+func personalData(w http.ResponseWriter, r *http.Request) {
+	result, err := selectAllPersonalData(r.Context())
 	if err != nil {
-		c.JSON(httpstatus, gin.H{"error": err.Error()})
+		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(httpstatus, result)
+	responceBody, err := json.Marshal(result)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responceBody)
 }
 
-// prepare to insert new data to DB
-func insertPersonalData(c *gin.Context) {
+// personalDataByID get personal data by id
+func personalDataByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	idvalue := params["id"]
+	result, err := selectPersonalData(r.Context(), "_id", idvalue)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	responceBody, err := json.Marshal(result)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responceBody)
+}
+
+// createPersonalData prepare to insert new data to DB
+func createPersonalData(w http.ResponseWriter, r *http.Request) {
 	var p PersonalData
-	if err := c.ShouldBindJSON(&p); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	//p.DocumentID = bson.NewObjectId()
-	fmt.Println(p.DocumentID)
-	insertResult, err := InsertPersonalData(p)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	fmt.Println(insertResult)
-	c.JSON(http.StatusCreated, gin.H{"status": "Success"})
-
+	err = json.Unmarshal(body, &p)
+	if err != nil {
+		errRespons(w, http.StatusBadRequest, err)
+		return
+	}
+	insertResult, err := insertPersonalData(r.Context(), p)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	successResponce(w, http.StatusCreated, fmt.Sprintf("Created %v document(s)", insertResult.InsertedID))
 }
 
-func updatePersonalData(c *gin.Context) {
+// updatePersonalData
+func updatePersonalData(w http.ResponseWriter, r *http.Request) {
 	var p PersonalData
-	if err := c.ShouldBindJSON(&p); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	updateResult, err := UpdatePersonalDataByID(p.DocumentID, p)
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	fmt.Println(`Inserted result: `, updateResult)
-	c.JSON(http.StatusOK, gin.H{"status": fmt.Sprintf("Update %v document(s) successfully", updateResult)})
+	err = json.Unmarshal(body, &p)
+	if err != nil {
+		errRespons(w, http.StatusBadRequest, err)
+		return
+	}
+	updateResult, err := updatePersonalDataByID(r.Context(), p.DocumentID, p)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	successResponce(w, http.StatusCreated, fmt.Sprintf("Update %v document(s) successfully", updateResult))
 }
 
-func deletePersonalData(c *gin.Context) {
-	idvalue := c.Param("id")
-	result, err := DeletePersonalData(idvalue)
+func removePersonalData(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	idvalue := params["id"]
+	result, err := deletePersonalData(r.Context(), idvalue)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": fmt.Sprintf("Deleted %v document(s) successfully", result)})
+	successResponce(w, http.StatusCreated, fmt.Sprintf("Deleted %v document(s) successfully", result))
 }
