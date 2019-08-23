@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -105,35 +106,35 @@ func SelectAllPersonalData() (interface{}, error) {
 
 //SelectPersonalData select document from Mongo
 //key and value params to make filtration
-func SelectPersonalData(key, value string) (interface{}, error) {
+func SelectPersonalData(key, value string) (interface{}, error, int) {
 	err := PingMongo()
 	if err != nil {
 		err = MongodbURIConnection()
 		if err != nil {
 			log.Printf(`Couldn't connect to db, err: %v`, err)
-			return nil, err
+			return nil, err, http.StatusInternalServerError
 		}
 	}
 	val, err := primitive.ObjectIDFromHex(value)
 	if err != nil {
 		log.Printf(`Couldn't decode object id from hex err: %v`, err)
-		return nil, err
+		return nil, err, http.StatusBadRequest
 	}
 	filter := bson.M{key: val}
 	if key == `` && value == `` {
 		filter = bson.M{}
 	}
 	var result PersonalData
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	//get mongo collection
 	collection := Mongo.Database(Database).Collection(Collection)
 	err = collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		log.Printf(`Find colletion error: %v`, err)
-		return &PersonalData{}, err
+		return &PersonalData{}, err, http.StatusNotFound
 	}
-	return result, nil
+	return result, nil, http.StatusOK
 }
 
 //DeletePersonalData removes documents from Mongo
