@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"crud/database"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -8,8 +9,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-
-	d "crud/db"
 )
 
 func errRespons(w http.ResponseWriter, code int, err error) {
@@ -27,7 +26,7 @@ func PersonalDatas(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	// case "POST" makes a list of personal data information.
 	case "GET":
-		result, err := d.SelectAllPersonalData(r.Context())
+		result, err := database.SelectAllPersonalData(r.Context())
 		if err != nil {
 			errRespons(w, http.StatusInternalServerError, err)
 			return
@@ -42,10 +41,10 @@ func PersonalDatas(w http.ResponseWriter, r *http.Request) {
 		w.Write(responceBody)
 	// case "POST" for create Personal Data by preparing to insert new data to DB.
 	case "POST":
-		var p *d.PersonalData
+		var p *database.PersonalData
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			errRespons(w, http.StatusBadRequest, err)
+			http.Error(w, "could not read request body", http.StatusBadRequest)
 			return
 		}
 		err = json.Unmarshal(body, &p)
@@ -53,7 +52,7 @@ func PersonalDatas(w http.ResponseWriter, r *http.Request) {
 			errRespons(w, http.StatusBadRequest, err)
 			return
 		}
-		insertResult, err := d.InsertPersonalData(r.Context(), p)
+		insertResult, err := database.InsertPersonalData(r.Context(), p)
 		if err != nil {
 			errRespons(w, http.StatusInternalServerError, err)
 			return
@@ -67,7 +66,7 @@ func PersonalDatas(w http.ResponseWriter, r *http.Request) {
 func PersonalDataByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	idvalue := params["id"]
-	result, err := d.SelectPersonalData(r.Context(), "_id", idvalue)
+	result, err := database.SelectPersonalData(r.Context(), "_id", idvalue)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -84,7 +83,7 @@ func PersonalDataByID(w http.ResponseWriter, r *http.Request) {
 
 // UpdatePersonalData function to add changes to personal information using object ID.
 func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
-	var p *d.PersonalData
+	var p *database.PersonalData
 	// reading request body information.
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -97,7 +96,7 @@ func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
 		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	updateResult, err := d.UpdatePersonalDataByID(r.Context(), p)
+	updateResult, err := database.UpdatePersonalDataByID(r.Context(), p)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -109,7 +108,7 @@ func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
 func RemovePersonalData(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	idvalue := params["id"]
-	result, err := d.DeletePersonalData(r.Context(), idvalue)
+	result, err := database.DeletePersonalData(r.Context(), idvalue)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
