@@ -44,11 +44,11 @@ func handler(collection *database.Collection) http.Handler {
 }
 
 // envf reades command line flags for db connection,
-// connectURI flag returns db connection URI, example: http://localhost:5432 ,
+// connectURI flag returns db connection URI, example: localhost:27017 ,
 // databes flag returns db name.
 func envf() (string, string) {
 	var conn, db string
-	flag.StringVar(&conn, "connectURI", "http://uri:port", "a striong var")
+	flag.StringVar(&conn, "connectURI", "localhost:port", "a striong var")
 	flag.StringVar(&db, "database", "database_name", "a string var")
 	flag.Parse()
 	return conn, db
