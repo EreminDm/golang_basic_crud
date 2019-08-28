@@ -1,14 +1,15 @@
 package gateway
 
 import (
-	"crud/database"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
+	"github.com/EreminDm/golang_basic_crud/database"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func errRespons(w http.ResponseWriter, code int, err error) {
@@ -16,57 +17,15 @@ func errRespons(w http.ResponseWriter, code int, err error) {
 	w.WriteHeader(code)
 	w.Write([]byte(err.Error()))
 }
+
 func successResponce(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
 	w.Write([]byte(message))
 }
 
-// PersonalData include two methods working with data.
-func PersonalDatas(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	// case "POST" makes a list of personal data information.
-	case "GET":
-		result, err := database.SelectAllPersonalData(r.Context())
-		if err != nil {
-			errRespons(w, http.StatusInternalServerError, err)
-			return
-		}
-		responceBody, err := json.Marshal(result)
-		if err != nil {
-			errRespons(w, http.StatusInternalServerError, err)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(responceBody)
-	// case "POST" for create Personal Data by preparing to insert new data to DB.
-	case "POST":
-		var p *database.PersonalData
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "could not read request body", http.StatusBadRequest)
-			return
-		}
-		err = json.Unmarshal(body, &p)
-		if err != nil {
-			errRespons(w, http.StatusBadRequest, err)
-			return
-		}
-		insertResult, err := database.InsertPersonalData(r.Context(), p)
-		if err != nil {
-			errRespons(w, http.StatusInternalServerError, err)
-			return
-		}
-		successResponce(w, http.StatusCreated, fmt.Sprintf("Created %v document(s)", insertResult.InsertedID))
-	}
-
-}
-
-// PersonalDataByID get personal data by id.
-func PersonalDataByID(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	idvalue := params["id"]
-	result, err := database.SelectPersonalData(r.Context(), "_id", idvalue)
+// ShowList make a list of personaldata.
+func ShowList(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+	result, err := database.SelectAll(r.Context(), collection)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -81,8 +40,48 @@ func PersonalDataByID(w http.ResponseWriter, r *http.Request) {
 	w.Write(responceBody)
 }
 
-// UpdatePersonalData function to add changes to personal information using object ID.
-func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
+// Insert for create Personal Data by preparing to insert new data to DB.
+func Insert(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+	var p *database.PersonalData
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "could not read request body", http.StatusBadRequest)
+		return
+	}
+	err = json.Unmarshal(body, &p)
+	if err != nil {
+		errRespons(w, http.StatusBadRequest, err)
+		return
+	}
+	insertResult, err := database.Insert(r.Context(), collection, p)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	successResponce(w, http.StatusCreated, fmt.Sprintf("Created %v document(s)", insertResult.InsertedID))
+}
+
+// ShowListByID returns personal data list by id.
+func ShowListByID(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+	params := mux.Vars(r)
+	idvalue := params["id"]
+	result, err := database.SelectOne(r.Context(), collection, "_id", idvalue)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	responceBody, err := json.Marshal(result)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(responceBody)
+}
+
+// Update function to add changes to personal information using object ID.
+func Update(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
 	var p *database.PersonalData
 	// reading request body information.
 	body, err := ioutil.ReadAll(r.Body)
@@ -96,7 +95,7 @@ func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
 		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	updateResult, err := database.UpdatePersonalDataByID(r.Context(), p)
+	updateResult, err := database.Update(r.Context(), collection, p)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -104,11 +103,11 @@ func UpdatePersonalData(w http.ResponseWriter, r *http.Request) {
 	successResponce(w, http.StatusCreated, fmt.Sprintf("Update %v document(s) successfully", updateResult))
 }
 
-// RemovePersonalData using url param id which is objectID in DB.
-func RemovePersonalData(w http.ResponseWriter, r *http.Request) {
+// Remove using url param id which is objectID in DB.
+func Remove(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
 	params := mux.Vars(r)
 	idvalue := params["id"]
-	result, err := database.DeletePersonalData(r.Context(), idvalue)
+	result, err := database.Remove(r.Context(), collection, idvalue)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return

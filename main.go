@@ -36,11 +36,11 @@ func handler(collection *mongo.Collection) http.Handler {
 	r := mux.NewRouter()
 
 	// handling urls API
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.ShowData(w, r, collection) }).Methods("GET")
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.ShowList(w, r, collection) }).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.Insert(w, r, collection) }).Methods("POST")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.PersonalDataByID(w, r, collection) }).Methods("GET")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.UpdatePersonalData(w, r, collection) }).Methods("PUT")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.RemovePersonalData(w, r, collection) }).Methods("DELETE")
+	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.ShowListByID(w, r, collection) }).Methods("GET")
+	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.Update(w, r, collection) }).Methods("PUT")
+	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.Remove(w, r, collection) }).Methods("DELETE")
 	return r
 }
 
