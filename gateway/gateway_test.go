@@ -2,19 +2,22 @@ package gateway_test
 
 import (
 	"bytes"
-	"crud/database"
-	"crud/gateway"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/EreminDm/golang_basic_crud/database"
+	"github.com/EreminDm/golang_basic_crud/gateway"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestPersonalDatas(t *testing.T) {
+func TestShowList(t *testing.T) {
 	var expectedObject *database.PersonalData
-	var addedObject = &database.PersonalData{nil, "firstName", "secondName", "", "", 1980}
-	tTable := []struct {
+	var mockCollecton *database.Collection
+	tt := []struct {
 		name   string
 		method string
 		body   []byte
@@ -22,51 +25,41 @@ func TestPersonalDatas(t *testing.T) {
 		err    string
 	}{
 		{name: "get request", method: "GET", body: nil, status: http.StatusOK},
-		{name: "post request", method: "POST", body: nil, status: http.StatusCreated},
 	}
 
-	for _, tCase := range tTable {
-		t.Run(tCase.name, func(t *testing.T) {
-			if tCase.method == "POST" {
-				var err error
-				tCase.body, err = json.Marshal(addedObject)
-				if err != nil {
-					t.Fatalf("Couldn't marshal request body: %v", err)
-				}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
+			assert.Error(t, err, fmt.Sprintf("couldn't create requset: %v", err))
 
-			}
-			req, err := http.NewRequest(tCase.method, "localhost:8000/", bytes.NewReader(tCase.body))
-			if err != nil {
-				t.Fatalf("Couldn't create requset: %v", err)
-			}
 			rec := httptest.NewRecorder()
-			gateway.PersonalDatas(rec, req)
+			gateway.ShowList(rec, req, mockCollecton)
 
 			res := rec.Result()
 			defer res.Body.Close()
-			body, err := ioutil.ReadAll(res.Body)
-			if err != nil {
-				t.Fatalf("couldn't read responce body: %v", err)
-			}
 
-			if tCase.err != "" {
-				if res.StatusCode != http.StatusBadRequest {
-					t.Errorf("expected status Bad Request; got: %v", res.StatusCode)
-				}
-				if msg := string(bytes.TrimSpace(body)); msg != tCase.err {
-					t.Errorf("expected message %q; got %q", tCase.err, msg)
-				}
+			body, err := ioutil.ReadAll(res.Body)
+			assert.Error(t, err, fmt.Sprintf("couldn't read responce body: %v", err))
+
+			if tc.err != "" {
+				assert.Equal(t, http.StatusBadRequest, res.StatusCode, fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode))
+				assert.Equal(t, tc.err, string(bytes.TrimSpace(body)), fmt.Sprintf("expected message %q; got %q", tc.err, string(bytes.TrimSpace(body))))
 				return
 			}
-			if res.StatusCode != tCase.status {
-				t.Errorf("expected status %v; got %v", tCase.status, res.StatusCode)
-			}
-
-			if tCase.method == "GET" {
-				if json.Unmarshal(body, &expectedObject) != nil {
-					t.Fatalf("expected body must be %v; got %v", expectedObject, string(body))
-				}
-			}
+			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
+			assert.Error(t, json.Unmarshal(body, &expectedObject), err.Error())
 		})
 	}
 }
+
+// for post test
+// var addedObject = &database.PersonalData{DocumentID: nil, Name: "firstName", LastName: "secondName", Phone: "", Email: "", YearOfBirth: 1980}
+//tt: {name: "post request", method: "POST", body: nil, status: http.StatusCreated},
+// if tc.method == "POST" {
+// 	var err error
+// 	tc.body, err = json.Marshal(addedObject)
+// 	if err != nil {
+// 		t.Fatalf("couldn't marshal request body: %v", err)
+// 	}
+
+// }
