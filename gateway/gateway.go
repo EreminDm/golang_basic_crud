@@ -9,7 +9,6 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/database"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func errRespons(w http.ResponseWriter, code int, err error) {
@@ -24,7 +23,7 @@ func successResponce(w http.ResponseWriter, code int, message string) {
 }
 
 // ShowList make a list of personaldata.
-func ShowList(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+func ShowList(w http.ResponseWriter, r *http.Request, collection *database.Collection) {
 	result, err := database.SelectAll(r.Context(), collection)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
@@ -41,7 +40,7 @@ func ShowList(w http.ResponseWriter, r *http.Request, collection *mongo.Collecti
 }
 
 // Insert for create Personal Data by preparing to insert new data to DB.
-func Insert(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+func Insert(w http.ResponseWriter, r *http.Request, collection *database.Collection) {
 	var p *database.PersonalData
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -62,7 +61,7 @@ func Insert(w http.ResponseWriter, r *http.Request, collection *mongo.Collection
 }
 
 // ShowListByID returns personal data list by id.
-func ShowListByID(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+func ShowListByID(w http.ResponseWriter, r *http.Request, collection *database.Collection) {
 	params := mux.Vars(r)
 	idvalue := params["id"]
 	result, err := database.SelectOne(r.Context(), collection, "_id", idvalue)
@@ -81,7 +80,7 @@ func ShowListByID(w http.ResponseWriter, r *http.Request, collection *mongo.Coll
 }
 
 // Update function to add changes to personal information using object ID.
-func Update(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+func Update(w http.ResponseWriter, r *http.Request, collection *database.Collection) {
 	var p *database.PersonalData
 	// reading request body information.
 	body, err := ioutil.ReadAll(r.Body)
@@ -104,7 +103,7 @@ func Update(w http.ResponseWriter, r *http.Request, collection *mongo.Collection
 }
 
 // Remove using url param id which is objectID in DB.
-func Remove(w http.ResponseWriter, r *http.Request, collection *mongo.Collection) {
+func Remove(w http.ResponseWriter, r *http.Request, collection *database.Collection) {
 	params := mux.Vars(r)
 	idvalue := params["id"]
 	result, err := database.Remove(r.Context(), collection, idvalue)

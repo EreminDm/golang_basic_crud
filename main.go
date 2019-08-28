@@ -9,7 +9,6 @@ import (
 	"github.com/EreminDm/golang_basic_crud/database"
 	"github.com/EreminDm/golang_basic_crud/gateway"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func main() {
@@ -31,7 +30,7 @@ func main() {
 }
 
 // handler for routing map navigation.
-func handler(collection *mongo.Collection) http.Handler {
+func handler(collection *database.Collection) http.Handler {
 	// making new router.
 	r := mux.NewRouter()
 

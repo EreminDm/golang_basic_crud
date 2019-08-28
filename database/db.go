@@ -16,6 +16,8 @@ const (
 	collection = "information"
 )
 
+// Collection type equals mongo Collection type
+type Collection = mongo.Collection
 
 // Connect - connect to mongo db by URI,
 // connectionURI URI for mongo db connetion.
