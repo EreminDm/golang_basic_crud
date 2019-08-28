@@ -13,47 +13,36 @@ import (
 
 // connectionURI address for monog db localDB connected.
 const (
-	connectionURI = "192.168.99.100:27017"
-	database      = "personal_data"
-	collection    = "information"
+	collection = "information"
 )
 
-// mongoClient to mongo db connections,
-// mongoCollection for work with documents inside colletion.
-var (
-	mongoClient     *mongo.Client
-	mongoCollection *mongo.Collection
-	err             error
-)
 
-// MongodbURIConnection - connect to mongo db by URI,
+// Connect - connect to mongo db by URI,
 // connectionURI URI for mongo db connetion.
-func MongodbURIConnection() error {
+func Connect(ctx context.Context, connectionURI, database string) (*mongo.Collection, error) {
 	// setting client options.
 	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
-	mongoClient, err = mongo.Connect(context.TODO(), clientOption)
+	client, err := mongo.Connect(ctx, clientOption)
 	if err != nil {
-		return fmt.Errorf(`MongodbConnection func, error: %v`, err)
+		return nil, fmt.Errorf(`MongodbConnection func, error: %v`, err)
 	}
-	log.Printf("MongoDB client connected")
-	mongoCollection = mongoClient.Database(database).Collection(collection)
-	return nil
+	return client.Database(database).Collection(collection), nil
 }
 
-// insertPersonalData function adding data to db.
-func InsertPersonalData(ctx context.Context, document *PersonalData) (*mongo.InsertOneResult, error) {
-	result, err := mongoCollection.InsertOne(ctx, document)
+// Insert function adding data to db.
+func Insert(ctx context.Context, collection *mongo.Collection, document *PersonalData) (*mongo.InsertOneResult, error) {
+	result, err := collection.InsertOne(ctx, document)
 	if err != nil {
 		return nil, fmt.Errorf(`DB document add error: %v`, err)
 	}
 	return result, nil
 }
 
-// SelectAllPersonalData select all documents from db.
-func SelectAllPersonalData(ctx context.Context) (results *[]PersonalData, err error) {
+// SelectAll select all documents from db.
+func SelectAll(ctx context.Context, collection *mongo.Collection) (results *[]PersonalData, err error) {
 	// no filter by default.
 	// Searches documents in colletion.
-	cursor, err := mongoCollection.Find(ctx, nil, options.Find())
+	cursor, err := collection.Find(ctx, nil, options.Find())
 	if err != nil {
 		return nil, fmt.Errorf(`Find collecion error: %v`, err)
 	}
@@ -69,9 +58,9 @@ func SelectAllPersonalData(ctx context.Context) (results *[]PersonalData, err er
 	return results, nil
 }
 
-// SelectPersonalData select document from Mongo,
+// SelectOne select document from Mongo,
 // key and value params to make filtration.
-func SelectPersonalData(ctx context.Context, key, value string) (result *PersonalData, err error) {
+func SelectOne(ctx context.Context, collection *mongo.Collection, key, value string) (result *PersonalData, err error) {
 	val, err := primitive.ObjectIDFromHex(value)
 	if err != nil {
 		return nil, fmt.Errorf(`Couldn't decode object id from hex err: %v`, err)
@@ -80,21 +69,21 @@ func SelectPersonalData(ctx context.Context, key, value string) (result *Persona
 	if key == `` && value == `` {
 		filter = nil
 	}
-	err = mongoCollection.FindOne(ctx, filter).Decode(&result)
+	err = collection.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		return nil, fmt.Errorf(`Find colletion error: %v`, err)
 	}
 	return result, nil
 }
 
-// DeletePersonalData removes documents from Mongo.
-func DeletePersonalData(ctx context.Context, id string) (int64, error) {
+// Remove deletes document from Mongo.
+func Remove(ctx context.Context, collection *mongo.Collection, id string) (int64, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, fmt.Errorf(`Couldn't decode object id from hex err: %v`, err)
 	}
 	filter := bson.D{{"_id", objectID}}
-	delResult, err := mongoCollection.DeleteOne(ctx, filter)
+	delResult, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return 0, fmt.Errorf(`Delete document error: %v`, err)
 	}
@@ -103,13 +92,13 @@ func DeletePersonalData(ctx context.Context, id string) (int64, error) {
 	return delResult.DeletedCount, nil
 }
 
-// UpdatePersonalDataByID rewrite information in db by user id filtration.
-func UpdatePersonalDataByID(ctx context.Context, p *PersonalData) (int64, error) {
+// Update rewrite information in db by user id filtration.
+func Update(ctx context.Context, collection *mongo.Collection, p *PersonalData) (int64, error) {
 	filter := bson.D{{"_id", p.DocumentID}}
 	update := bson.D{{
 		"$in", bson.D{{"name", p.Name}, {"lastName", p.LastName}, {"phone", p.Phone}, {"email", p.Email}, {"yaerOfBirth", p.YearOfBirth}},
 	}}
-	updateResult, err := mongoCollection.UpdateOne(ctx, filter, update)
+	updateResult, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return 0, fmt.Errorf(`Update %v object error: %v`, p.DocumentID, err)
 	}

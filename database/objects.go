@@ -2,7 +2,7 @@ package database
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-// personalData description.
+// PersonalData description.
 type PersonalData struct {
 	DocumentID  *primitive.ObjectID `json:"id,omitempty" bson:"_id"`
 	Name        string              `json:"name" bson:"name"`
@@ -11,6 +11,3 @@ type PersonalData struct {
 	Email       string              `json:"email,omitempty" bson:"email,omitempty"`
 	YearOfBirth int                 `json:"yaerOfBirth,omitempty" bson:"yaerOfBirth,omitempty"`
 }
-
-// personalDataMock testing struct.
-type personalDataMock struct{}
