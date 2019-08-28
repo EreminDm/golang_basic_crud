@@ -26,7 +26,7 @@ func Connect(ctx context.Context, connectionURI, database string) (*mongo.Collec
 	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
 	client, err := mongo.Connect(ctx, clientOption)
 	if err != nil {
-		return nil, fmt.Errorf(`MongodbConnection func, error: %v`, err)
+		return nil, fmt.Errorf(`couldn't connect to database using uri, error: %v`, err)
 	}
 	return client.Database(database).Collection(collection), nil
 }
