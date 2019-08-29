@@ -57,7 +57,7 @@ func Insert(w http.ResponseWriter, r *http.Request, collection *database.Collect
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	successResponce(w, http.StatusCreated, fmt.Sprintf("Created %v document(s)", insertResult.InsertedID))
+	successResponce(w, http.StatusCreated, fmt.Sprintf("created %v document(s)", insertResult.InsertedID))
 }
 
 // ShowListByID returns personal data list by id.
@@ -99,7 +99,7 @@ func Update(w http.ResponseWriter, r *http.Request, collection *database.Collect
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	successResponce(w, http.StatusCreated, fmt.Sprintf("Update %v document(s) successfully", updateResult))
+	successResponce(w, http.StatusCreated, fmt.Sprintf("update %v document(s) successfully", updateResult))
 }
 
 // Remove using url param id which is objectID in DB.
@@ -111,5 +111,5 @@ func Remove(w http.ResponseWriter, r *http.Request, collection *database.Collect
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	successResponce(w, http.StatusCreated, fmt.Sprintf("Deleted %v document(s) successfully", result))
+	successResponce(w, http.StatusCreated, fmt.Sprintf("deleted %v document(s) successfully", result))
 }
