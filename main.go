@@ -37,8 +37,8 @@ func handler(collection *database.Collection) http.Handler {
 	// handling urls API
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.ShowList(w, r, collection) }).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.Insert(w, r, collection) }).Methods("POST")
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { gateway.Update(w, r, collection) }).Methods("PUT")
 	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.ShowListByID(w, r, collection) }).Methods("GET")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.Update(w, r, collection) }).Methods("PUT")
 	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { gateway.Remove(w, r, collection) }).Methods("DELETE")
 	return r
 }
