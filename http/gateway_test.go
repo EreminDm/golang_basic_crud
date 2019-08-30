@@ -1,4 +1,4 @@
-package gateway_test
+package http_test
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/EreminDm/golang_basic_crud/database"
-	"github.com/EreminDm/golang_basic_crud/gateway"
+	"github.com/EreminDm/golang_basic_crud/http"
 	"github.com/stretchr/testify/assert"
 )
 
