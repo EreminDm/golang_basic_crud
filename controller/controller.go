@@ -2,6 +2,7 @@ package crud
 
 import (
 	"context"
+	"github.com/EreminDm/golang_basic_crud/database"
 )
 
 // PersonalData description.
@@ -21,4 +22,8 @@ type UsersPersonalData interface {
 	Remove(ctx context.Context, id string) (int64, error)
 	Update(ctx context.Context, p *PersonalData) (int64, error)
 	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
+}
+
+func (p  PersonalData) SelectOne(ctx context.Context, key, value string) (result PersonalData, err error){
+	return database.SelectOne(ctx,key,value)
 }
