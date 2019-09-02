@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -30,7 +31,7 @@ type User interface {
 
 // SelectOne returns personal data for a given id,
 // key and value params to make filtration.
-func (M *Mongodatabase) One(ctx context.Context, value string) (result *PersonalData, err error) {
+func (m *Mongodatabase) One(ctx context.Context, value string) (result *PersonalData, err error) {
 	val, err := primitive.ObjectIDFromHex(value)
 	if err != nil {
 		return nil, fmt.Errorf(`couldn't decode object id from hex err: %v`, err)
@@ -39,9 +40,9 @@ func (M *Mongodatabase) One(ctx context.Context, value string) (result *Personal
 	if value == `` {
 		filter = nil
 	}
-	err = M.Person.FindOne(ctx, filter).Decode(&result)
+	err = m.Person.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		return nil, fmt.Errorf(`find colletion error: %v`, err)
+		return nil, errors.Wrap(err, "could not find collection ")
 	}
 	return result, nil
 }
@@ -50,7 +51,7 @@ func (M *Mongodatabase) One(ctx context.Context, value string) (result *Personal
 func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (interface{}, error) {
 	result, err := m.Person.InsertOne(ctx, document)
 	if err != nil {
-		return nil, fmt.Errorf(`adding database document error: %v`, err)
+		return nil, errors.Wrap(err, "could not add document(s) in database")
 	}
 	return result.InsertedID, nil
 }
@@ -61,16 +62,16 @@ func (m *Mongodatabase) All(ctx context.Context) (results *[]PersonalData, err e
 	// Searches documents in colletion.
 	cursor, err := m.Person.Find(ctx, nil, options.Find())
 	if err != nil {
-		return nil, fmt.Errorf(`find collecion error: %v`, err)
+		return nil, errors.Wrap(err, "could not find document in database")
 	}
 	defer cursor.Close(ctx)
 	// Decode documents from colletion.
 	err = cursor.All(ctx, &results)
 	if err != nil {
-		return nil, fmt.Errorf("documents curser decode error: %v", err)
+		return nil, errors.Wrap(err, "could not decode document to struct")
 	}
 	if err = cursor.Err(); err != nil {
-		return nil, fmt.Errorf("curser error: %v", err)
+		return nil, errors.Wrap(err, "curser error")
 	}
 	return results, nil
 }
@@ -79,12 +80,12 @@ func (m *Mongodatabase) All(ctx context.Context) (results *[]PersonalData, err e
 func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return 0, fmt.Errorf(`couldn't decode object id from hex err: %v`, err)
+		return 0, errors.Wrap(err, "couldn't decode object id from hex err")
 	}
 	filter := bson.D{{"_id", objectID}}
 	delResult, err := m.Person.DeleteOne(ctx, filter)
 	if err != nil {
-		return 0, fmt.Errorf(`delete document error: %v`, err)
+		return 0, errors.Wrap(err, "could not remove document")
 	}
 
 	return delResult.DeletedCount, nil
@@ -94,7 +95,7 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 func (m *Mongodatabase) Update(ctx context.Context, p *PersonalData) (int64, error) {
 	docID, err := primitive.ObjectIDFromHex(p.DocumentID)
 	if err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "could not make object id from incoming hex")
 	}
 	filter := bson.D{{"_id", docID}}
 	update := bson.D{{
@@ -102,7 +103,7 @@ func (m *Mongodatabase) Update(ctx context.Context, p *PersonalData) (int64, err
 	}}
 	updateResult, err := m.Person.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return 0, fmt.Errorf(`update %v object error: %v`, p.DocumentID, err)
+		return 0, errors.Wrap(err, "could not update object")
 	}
 	return updateResult.ModifiedCount, nil
 }

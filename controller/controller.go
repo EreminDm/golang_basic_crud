@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/EreminDm/golang_basic_crud/database"
+	"github.com/pkg/errors"
 )
 
 // PersonalData description.
@@ -31,17 +32,17 @@ func (p PersonalData) Insert(ctx context.Context, document *PersonalData) (inter
 	var doc = database.PersonalData{DocumentID: p.DocumentID, Email: p.Email, LastName: p.LastName, Name: p.Name, Phone: p.Phone, YearOfBirth: p.YearOfBirth}
 	i, err := u.Insert(ctx, &doc)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not insert personal data")
 	}
 	return i, nil
 }
 
-// SelectOne returns personal data from collection.
+// One returns personal data from collection.
 func (p PersonalData) One(ctx context.Context, value string) (*PersonalData, error) {
 	var u database.User
 	user, err := u.One(ctx, value)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not select one personal data")
 	}
 
 	p.DocumentID = user.DocumentID
@@ -54,7 +55,7 @@ func (p PersonalData) One(ctx context.Context, value string) (*PersonalData, err
 	return &p, nil
 }
 
-// SelectAll returns an array of personal information.
+// All returns an array of personal information.
 func (p PersonalData) All(ctx context.Context) ([]PersonalData, error) {
 	var (
 		u  database.User
@@ -62,7 +63,7 @@ func (p PersonalData) All(ctx context.Context) ([]PersonalData, error) {
 	)
 	users, err := u.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not select all personal data")
 	}
 	for _, usr := range users {
 		p.DocumentID = usr.DocumentID

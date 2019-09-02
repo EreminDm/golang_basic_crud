@@ -2,8 +2,8 @@ package database
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -25,7 +25,7 @@ func Connect(ctx context.Context, connectionURI, databaseName string) error {
 	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
 	client, err := mongo.Connect(ctx, clientOption)
 	if err != nil {
-		return fmt.Errorf(`couldn't connect to database using uri, error: %v`, err)
+		return errors.Wrap(err, "couldn't connect to database using uri")
 	}
 	NewPersonCollection(client.Database(databaseName).Collection(collection))
 	return nil
