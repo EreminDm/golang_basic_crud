@@ -13,30 +13,27 @@ const (
 	collection = "information"
 )
 
-//Mongodatabase is a Mongo
-type mongodatabase struct {
-	Collection *mongo.Collection
+// Mongodatabase is a Mongo collections.
+type Mongodatabase struct {
+	Person *mongo.Collection
 }
-
 
 // Connect - connect to mongo db by URI,
 // connectionURI URI for mongo db connetion.
-func Connect(ctx context.Context, connectionURI, databaseName string) (error) {
+func Connect(ctx context.Context, connectionURI, databaseName string) error {
 	// setting client options.
 	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
 	client, err := mongo.Connect(ctx, clientOption)
 	if err != nil {
 		return fmt.Errorf(`couldn't connect to database using uri, error: %v`, err)
 	}
-	database.NewDatabaseConnection(client.Database(databaseName).Collection(collection))
+	NewPersonCollection(client.Database(databaseName).Collection(collection))
 	return nil
 }
 
-// NewDatabaseConnection asd.
-func NewDatabaseConnection(coll *mongo.Collection) *mongodatabase {
-	return &mongodatabase{
-		Collection: coll,
+// NewPersonCollection returns new mongo person  collection.
+func NewPersonCollection(coll *mongo.Collection) *Mongodatabase {
+	return &Mongodatabase{
+		Person: coll,
 	}
 }
-
-	

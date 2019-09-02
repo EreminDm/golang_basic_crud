@@ -4,8 +4,11 @@ import (
 	"context"
 	"flag"
 	"log"
+	"net/http"
 
 	"github.com/EreminDm/golang_basic_crud/database"
+	"github.com/EreminDm/golang_basic_crud/network"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -26,16 +29,15 @@ func main() {
 }
 
 // handler for routing map navigation.
-func handler(collection *database.Collection) http.Handler {
+func handler() http.Handler {
 	// making new router.
 	r := mux.NewRouter()
-
-	// // handling urls API
-	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ShowList(w, r, collection) }).Methods("GET")
-	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.Insert(w, r, collection) }).Methods("POST")
-	// r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.Update(w, r, collection) }).Methods("PUT")
-	// r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { http.ShowListByID(w, r, collection) }).Methods("GET")
-	// r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { http.Remove(w, r, collection) }).Methods("DELETE")
+	// handling urls API
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.List(w, r) }).Methods("GET")
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Insert(w, r) }).Methods("POST")
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Update(w, r) }).Methods("PUT")
+	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { network.ByID(w, r) }).Methods("GET")
+	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { network.Remove(w, r) }).Methods("DELETE")
 	return r
 }
 
