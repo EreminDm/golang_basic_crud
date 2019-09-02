@@ -7,14 +7,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/EreminDm/golang_basic_crud/database"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRouting(t *testing.T) {
-	var collectionMoc *database.Collection
 	t.Run("", func(t *testing.T) {
-		srv := httptest.NewServer(handler(collectionMoc))
+		srv := httptest.NewServer(handler())
 		defer srv.Close()
 
 		res, err := http.Get(fmt.Sprintf("%s/", srv.URL))
@@ -28,6 +26,5 @@ func TestRouting(t *testing.T) {
 			t.Fatalf("couldn't read responce body: %v", err)
 		}
 		assert.Equal(t, http.StatusOK, res.StatusCode, fmt.Sprintf("expected status %v; got %v", http.StatusOK, res.StatusCode))
-
 	})
 }
