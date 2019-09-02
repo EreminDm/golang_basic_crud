@@ -32,7 +32,7 @@ func main() {
 func handler() http.Handler {
 	// making new router.
 	r := mux.NewRouter()
-	// handling urls API
+	// handling urls API.
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.List(w, r) }).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Insert(w, r) }).Methods("POST")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Update(w, r) }).Methods("PUT")

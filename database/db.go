@@ -18,7 +18,7 @@ type Mongodatabase struct {
 	Person *mongo.Collection
 }
 
-// Connect - connect to mongo db by URI,
+// Connect connects to mongo db by URI,
 // connectionURI URI for mongo db connetion.
 func Connect(ctx context.Context, connectionURI, databaseName string) error {
 	// setting client options.
@@ -31,7 +31,7 @@ func Connect(ctx context.Context, connectionURI, databaseName string) error {
 	return nil
 }
 
-// NewPersonCollection returns new mongo person  collection.
+// NewPersonCollection returns new mongo person collection.
 func NewPersonCollection(coll *mongo.Collection) *Mongodatabase {
 	return &Mongodatabase{
 		Person: coll,

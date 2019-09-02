@@ -16,7 +16,7 @@ type PersonalData struct {
 	YearOfBirth int
 }
 
-// UsersPersonalData abc
+// UsersPersonalData description.
 type UsersPersonalData interface {
 	One(ctx context.Context, value string) (PersonalData, error)
 	All(ctx context.Context) ([]PersonalData, error)

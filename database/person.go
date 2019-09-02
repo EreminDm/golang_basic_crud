@@ -19,7 +19,7 @@ type PersonalData struct {
 	YearOfBirth int    `bson:"yaerOfBirth,omitempty"`
 }
 
-// User abc
+// User interface description.
 type User interface {
 	One(ctx context.Context, value string) (PersonalData, error)
 	All(ctx context.Context) (results []PersonalData, err error)
@@ -46,7 +46,7 @@ func (M *Mongodatabase) One(ctx context.Context, value string) (result *Personal
 	return result, nil
 }
 
-// Insert function adding data to db.
+// Insert function adding data to database.
 func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (interface{}, error) {
 	result, err := m.Person.InsertOne(ctx, document)
 	if err != nil {
@@ -55,7 +55,7 @@ func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (int
 	return result.InsertedID, nil
 }
 
-// All select all documents from db.
+// All selects all documents from database.
 func (m *Mongodatabase) All(ctx context.Context) (results *[]PersonalData, err error) {
 	// no filter by default.
 	// Searches documents in colletion.
@@ -90,7 +90,7 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 	return delResult.DeletedCount, nil
 }
 
-// Update rewrite information in db by user id filtration.
+// Update rewrites information in db by user id filtration.
 func (m *Mongodatabase) Update(ctx context.Context, p *PersonalData) (int64, error) {
 	docID, err := primitive.ObjectIDFromHex(p.DocumentID)
 	if err != nil {

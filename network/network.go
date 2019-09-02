@@ -14,7 +14,7 @@ import (
 
 // PersonalData description.
 type PersonalData struct {
-	DocumentID  string `json:"id,omitempty"` // as *primitive.ObjectID
+	DocumentID  string `json:"id,omitempty"` // as *primitive.ObjectID.
 	Name        string `json:"name"`
 	LastName    string `json:"lastName"`
 	Phone       string `json:"phone,omitempty"`
@@ -73,7 +73,7 @@ func List(w http.ResponseWriter, r *http.Request) {
 	w.Write(responceBody)
 }
 
-// Insert creates Personal Data by preparing to insert new data to DB.
+// Insert creates Personal Data by preparing to insert new data to database.
 func Insert(w http.ResponseWriter, r *http.Request) {
 	var (
 		u controller.UsersPersonalData
@@ -98,7 +98,7 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	successResponce(w, http.StatusCreated, fmt.Sprintf("created %v document(s)", insertResult))
 }
 
-// Update function to add changes to personal information using object ID.
+// Update adds changes to personal information using object ID.
 func Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		u controller.UsersPersonalData
@@ -124,7 +124,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	successResponce(w, http.StatusCreated, fmt.Sprintf("update %v document(s) successfully", updateResult))
 }
 
-// Remove using url param id which is objectID in DB.
+// Remove deletes object using url param id which is objectID in database.
 func Remove(w http.ResponseWriter, r *http.Request) {
 	var u controller.UsersPersonalData
 	params := mux.Vars(r)
@@ -137,7 +137,7 @@ func Remove(w http.ResponseWriter, r *http.Request) {
 	successResponce(w, http.StatusCreated, fmt.Sprintf("deleted %v document(s) successfully", result))
 }
 
-// transformToController returns controllers personal data
+// transformToController returns controllers personal data.
 func transformToController(p PersonalData) *controller.PersonalData {
 	var up controller.PersonalData
 	up.DocumentID = p.DocumentID
