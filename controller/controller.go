@@ -18,8 +18,8 @@ type PersonalData struct {
 
 // UsersPersonalData abc
 type UsersPersonalData interface {
-	SelectOne(ctx context.Context, value string) (PersonalData, error)
-	SelectAll(ctx context.Context) ([]PersonalData, error)
+	One(ctx context.Context, value string) (PersonalData, error)
+	All(ctx context.Context) ([]PersonalData, error)
 	Remove(ctx context.Context, id string) (int64, error)
 	Update(ctx context.Context, p *PersonalData) (int64, error)
 	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
@@ -37,9 +37,9 @@ func (p PersonalData) Insert(ctx context.Context, document *PersonalData) (inter
 }
 
 // SelectOne returns personal data from collection.
-func (p PersonalData) SelectOne(ctx context.Context, value string) (*PersonalData, error) {
+func (p PersonalData) One(ctx context.Context, value string) (*PersonalData, error) {
 	var u database.User
-	user, err := u.SelectOne(ctx, value)
+	user, err := u.One(ctx, value)
 	if err != nil {
 		return nil, err
 	}
@@ -55,12 +55,12 @@ func (p PersonalData) SelectOne(ctx context.Context, value string) (*PersonalDat
 }
 
 // SelectAll returns an array of personal information.
-func (p PersonalData) SelectAll(ctx context.Context) ([]PersonalData, error) {
+func (p PersonalData) All(ctx context.Context) ([]PersonalData, error) {
 	var (
 		u  database.User
 		pr []PersonalData
 	)
-	users, err := u.SelectAll(ctx)
+	users, err := u.All(ctx)
 	if err != nil {
 		return nil, err
 	}

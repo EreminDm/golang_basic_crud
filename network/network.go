@@ -40,7 +40,7 @@ func ByID(w http.ResponseWriter, r *http.Request) {
 	var u controller.UsersPersonalData
 	params := mux.Vars(r)
 	id := params["id"]
-	result, err := u.SelectOne(r.Context(), id)
+	result, err := u.One(r.Context(), id)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -58,7 +58,7 @@ func ByID(w http.ResponseWriter, r *http.Request) {
 // List returns a list of personaldata.
 func List(w http.ResponseWriter, r *http.Request) {
 	var u controller.UsersPersonalData
-	usrs, err := u.SelectAll(r.Context())
+	usrs, err := u.All(r.Context())
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
