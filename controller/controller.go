@@ -3,11 +3,24 @@ package controller
 import (
 	"context"
 
-	"github.com/EreminDm/golang_basic_crud/database"
 	"github.com/pkg/errors"
 )
 
-// PersonalData description.
+// Personal describes database implementation.
+type Personal struct {
+	DB DBProvider
+}
+
+// DBProvider describes implementing methods.
+type DBProvider interface {
+	One(ctx context.Context, value string) (*PersonalData, error)
+	All(ctx context.Context) (*[]PersonalData, error)
+	Remove(ctx context.Context, id string) (int64, error)
+	Update(ctx context.Context, p *PersonalData) (int64, error)
+	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
+}
+
+// PersonalData is a personal information description.
 type PersonalData struct {
 	DocumentID  string
 	Name        string
@@ -17,20 +30,16 @@ type PersonalData struct {
 	YearOfBirth int
 }
 
-// UsersPersonalData description.
-type UsersPersonalData interface {
-	One(ctx context.Context, value string) (*PersonalData, error)
-	All(ctx context.Context) ([]*PersonalData, error)
-	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *PersonalData) (int64, error)
-	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
+// NewPersonal returns new Personal provider.
+func NewPersonal(db DBProvider) (*Personal, error) {
+	return &Personal{
+		DB: db,
+	}, nil
 }
 
 // Insert adds data to collection.
-func (p *PersonalData) Insert(ctx context.Context, document *PersonalData) (interface{}, error) {
-	var u database.User
-	var doc = database.PersonalData{DocumentID: p.DocumentID, Email: p.Email, LastName: p.LastName, Name: p.Name, Phone: p.Phone, YearOfBirth: p.YearOfBirth}
-	i, err := u.Insert(ctx, &doc)
+func (p *Personal) Insert(ctx context.Context, document *PersonalData) (interface{}, error) {
+	i, err := p.DB.Insert(ctx, document)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not insert personal data")
 	}
@@ -38,54 +47,29 @@ func (p *PersonalData) Insert(ctx context.Context, document *PersonalData) (inte
 }
 
 // One returns personal data from collection.
-func (p *PersonalData) One(ctx context.Context, value string) (*PersonalData, error) {
-	var u database.User
-	usr, err := u.One(ctx, value)
+func (p *Personal) One(ctx context.Context, id string) (*PersonalData, error) {
+	usr, err := p.DB.One(ctx, id)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not select one personal data")
 	}
-
-	p.DocumentID = usr.DocumentID
-	p.Email = usr.Email
-	p.LastName = usr.LastName
-	p.Name = usr.Name
-	p.Phone = usr.Phone
-	p.YearOfBirth = usr.YearOfBirth
-
-	return p, nil
+	return usr, nil
 }
 
 // All returns an array of personal information.
-func (p *PersonalData) All(ctx context.Context) ([]*PersonalData, error) {
-	var (
-		u  database.User
-		pr []*PersonalData
-	)
-	users, err := u.All(ctx)
+func (p *Personal) All(ctx context.Context) (*[]PersonalData, error) {
+	usrs, err := p.DB.All(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not select all personal data")
 	}
-	for _, usr := range users {
-		p.DocumentID = usr.DocumentID
-		p.Email = usr.Email
-		p.LastName = usr.LastName
-		p.Name = usr.Name
-		p.Phone = usr.Phone
-		p.YearOfBirth = usr.YearOfBirth
-		pr = append(pr, p)
-	}
-	return pr, nil
+	return usrs, nil
 }
 
-// Update change information in collection.
-func (p *PersonalData) Update(ctx context.Context, pd *PersonalData) (int64, error) {
-	var u database.User
-	var doc = database.PersonalData{DocumentID: pd.DocumentID, Email: pd.Email, LastName: pd.LastName, Name: pd.Name, Phone: pd.Phone, YearOfBirth: pd.YearOfBirth}
-	return u.Update(ctx, &doc)
+// Update changes information in collection.
+func (p *Personal) Update(ctx context.Context, document *PersonalData) (int64, error) {
+	return p.DB.Update(ctx, document)
 }
 
-// Remove function deletes information from collection.
-func (p *PersonalData) Remove(ctx context.Context, id string) (int64, error) {
-	var u database.User
-	return u.Remove(ctx, id)
+// Remove deletes information from collection.
+func (p *Personal) Remove(ctx context.Context, id string) (int64, error) {
+	return p.DB.Remove(ctx, id)
 }

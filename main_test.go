@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +21,7 @@ func TestRouting(t *testing.T) {
 			t.Fatalf("couldn't send GET request: %v", err)
 		}
 
-		defer res.Body.Close()
+		defer errors.Wrap(res.Body.Close(), "could not colse responce body")
 		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("couldn't read responce body: %v", err)

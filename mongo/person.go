@@ -1,4 +1,4 @@
-package database
+package mongo
 
 import (
 	"context"
@@ -19,26 +19,14 @@ type PersonalData struct {
 	YearOfBirth int    `bson:"yaerOfBirth,omitempty"`
 }
 
-// User interface description.
-type User interface {
-	One(ctx context.Context, value string) (*PersonalData, error)
-	All(ctx context.Context) (results []*PersonalData, err error)
-	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *PersonalData) (int64, error)
-	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
-}
-
 // One returns personal data for a given id,
-// key and value params to make filtration.
-func (m *Mongodatabase) One(ctx context.Context, value string) (result *PersonalData, err error) {
-	val, err := primitive.ObjectIDFromHex(value)
+// id params to make filtration.
+func (m *Mongodatabase) One(ctx context.Context, id string) (result *PersonalData, err error) {
+	val, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't decode object id from hex err")
 	}
 	filter := bson.D{{"_id", val}}
-	if value == `` {
-		filter = nil
-	}
 	err = m.Person.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not find collection ")
@@ -46,7 +34,7 @@ func (m *Mongodatabase) One(ctx context.Context, value string) (result *Personal
 	return result, nil
 }
 
-// Insert function adding data to database.
+// Insert is a function which adding data to database.
 func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (interface{}, error) {
 	result, err := m.Person.InsertOne(ctx, document)
 	if err != nil {
@@ -56,7 +44,7 @@ func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (int
 }
 
 // All selects all documents from database.
-func (m *Mongodatabase) All(ctx context.Context) (results []*PersonalData, err error) {
+func (m *Mongodatabase) All(ctx context.Context) (results *[]PersonalData, err error) {
 	// no filter by default.
 	// Searches documents in colletion.
 	cursor, err := m.Person.Find(ctx, nil, options.Find())
