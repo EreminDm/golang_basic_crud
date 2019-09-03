@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -34,7 +33,7 @@ type User interface {
 func (m *Mongodatabase) One(ctx context.Context, value string) (result *PersonalData, err error) {
 	val, err := primitive.ObjectIDFromHex(value)
 	if err != nil {
-		return nil, fmt.Errorf(`couldn't decode object id from hex err: %v`, err)
+		return nil, errors.Wrap(err, "couldn't decode object id from hex err")
 	}
 	filter := bson.D{{"_id", val}}
 	if value == `` {
