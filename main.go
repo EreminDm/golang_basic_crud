@@ -33,11 +33,11 @@ func handler() http.Handler {
 	// making new router.
 	r := mux.NewRouter()
 	// handling urls API.
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.List(w, r) }).Methods("GET")
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Insert(w, r) }).Methods("POST")
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { network.Update(w, r) }).Methods("PUT")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { network.ByID(w, r) }).Methods("GET")
-	r.HandleFunc("/{id}", func(w http.ResponseWriter, r *http.Request) { network.Remove(w, r) }).Methods("DELETE")
+	r.HandleFunc("/", network.List).Methods("GET")
+	r.HandleFunc("/", network.Insert).Methods("POST")
+	r.HandleFunc("/", network.Update).Methods("PUT")
+	r.HandleFunc("/{id}", network.ByID).Methods("GET")
+	r.HandleFunc("/{id}", network.Remove).Methods("DELETE")
 	return r
 }
 

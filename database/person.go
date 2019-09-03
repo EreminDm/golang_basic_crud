@@ -22,14 +22,14 @@ type PersonalData struct {
 
 // User interface description.
 type User interface {
-	One(ctx context.Context, value string) (PersonalData, error)
-	All(ctx context.Context) (results []PersonalData, err error)
+	One(ctx context.Context, value string) (*PersonalData, error)
+	All(ctx context.Context) (results []*PersonalData, err error)
 	Remove(ctx context.Context, id string) (int64, error)
 	Update(ctx context.Context, p *PersonalData) (int64, error)
 	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
 }
 
-// SelectOne returns personal data for a given id,
+// One returns personal data for a given id,
 // key and value params to make filtration.
 func (m *Mongodatabase) One(ctx context.Context, value string) (result *PersonalData, err error) {
 	val, err := primitive.ObjectIDFromHex(value)
@@ -57,7 +57,7 @@ func (m *Mongodatabase) Insert(ctx context.Context, document *PersonalData) (int
 }
 
 // All selects all documents from database.
-func (m *Mongodatabase) All(ctx context.Context) (results *[]PersonalData, err error) {
+func (m *Mongodatabase) All(ctx context.Context) (results []*PersonalData, err error) {
 	// no filter by default.
 	// Searches documents in colletion.
 	cursor, err := m.Person.Find(ctx, nil, options.Find())

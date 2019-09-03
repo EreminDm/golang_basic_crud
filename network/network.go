@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/EreminDm/golang_basic_crud/controller"
-
 	"github.com/gorilla/mux"
 )
 
