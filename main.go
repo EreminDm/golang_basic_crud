@@ -20,15 +20,17 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
-	// geting db collection.
+	// returns mongo collection.
 	m, err := mongo.Connect(ctx, connURI, dbName)
 	if err != nil {
 		log.Fatalf(`couldn't connect to database: %v`, err)
 	}
+	// returns controller provider.
 	c, err := controller.NewPersonal(m)
 	if err != nil {
 		log.Fatalf(`couldn't initialze Personal controller: %v`, err)
 	}
+	// returns handler provider.
 	h, err := httphandler.NewCTRL(c)
 	// port environment define to 8000.
 	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", httphandler.Handler(h)))
