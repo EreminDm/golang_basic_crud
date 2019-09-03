@@ -12,15 +12,15 @@ import (
 )
 
 func main() {
-	// parsing command line flags.
-	conn, db := envf()
+	// envf parsing command line flags & returns database URI connection and database name.
+	connURI, dbName := envf()
 
 	// create context for db connection.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// geting db collection.
-	err := database.Connect(ctx, conn, db)
+	err := database.Connect(ctx, connURI, dbName)
 	if err != nil {
 		log.Fatalf(`couldn't connect to database: %v`, err)
 	}
