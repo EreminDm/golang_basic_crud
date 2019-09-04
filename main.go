@@ -29,16 +29,11 @@ func main() {
 	}
 
 	// returns controller provider.
-	c, err := controller.NewPersonal(m)
-	if err != nil {
-		log.Fatalf(`couldn't initialze Personal controller: %v`, err)
-	}
+	c := controller.NewPersonal(m)
 
 	// returns handler provider.
-	h, err := httphandler.NewController(c)
-	if err != nil {
-		log.Fatalf(`couldn't initialze HTTP controller: %v`, err)
-	}
+	h := httphandler.NewController(c)
+
 	// port environment define to 8000.
 	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", httphandler.Handler(h)))
 }

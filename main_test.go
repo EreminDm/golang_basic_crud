@@ -1,31 +1,16 @@
 package main
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+// func TestMain(t *testing.T) {
+// 	tt := []struct {
+// 		connectionURI string
+// 		databaseName   string
+// 	}{
+// 		{connectionURI: "127.0.0.1:27017",databasename: "test"},
+// 	}
 
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
-)
-
-func TestRouting(t *testing.T) {
-	t.Run("", func(t *testing.T) {
-		srv := httptest.NewServer(handler())
-		defer srv.Close()
-
-		res, err := http.Get(fmt.Sprintf("%s/", srv.URL))
-		if err != nil {
-			t.Fatalf("couldn't send GET request: %v", err)
-		}
-
-		defer errors.Wrap(res.Body.Close(), "could not colse responce body")
-		_, err = ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Fatalf("couldn't read responce body: %v", err)
-		}
-		assert.Equal(t, http.StatusOK, res.StatusCode, fmt.Sprintf("expected status %v; got %v", http.StatusOK, res.StatusCode))
-	})
-}
+// 	for _, tc := range tt {
+// 		var execCommand = exec.Command
+// 		cmd := execCommand("docker", "run", "-d", container)
+// 	envf(tc.connectionURI,tc.databaseName)
+// 	}
+// }

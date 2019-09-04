@@ -37,10 +37,10 @@ type personalData struct {
 }
 
 // NewController returns new controller provider
-func NewController(c Provider) (*Controller, error) {
+func NewController(c Provider) *Controller {
 	return &Controller{
 		CTR: c,
-	}, nil
+	}
 }
 
 // receive returns httphandler package personal data construction.

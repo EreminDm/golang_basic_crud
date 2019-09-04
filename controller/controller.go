@@ -22,10 +22,10 @@ type DBProvider interface {
 }
 
 // NewPersonal returns new Personal provider.
-func NewPersonal(db DBProvider) (*Personal, error) {
+func NewPersonal(db DBProvider) *Personal {
 	return &Personal{
 		DB: db,
-	}, nil
+	}
 }
 
 // Insert adds data to collection.

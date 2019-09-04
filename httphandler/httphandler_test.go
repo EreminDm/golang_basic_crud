@@ -1,5 +1,53 @@
 package httphandler_test
 
+import (
+	"testing"
+
+	"github.com/EreminDm/golang_basic_crud/httphandler"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestNewController(t *testing.T) {
+	var expected httphandler.Controller
+	var p httphandler.Provider
+
+	tt := []struct {
+		name     string
+		provider httphandler.Provider
+		equal    bool
+	}{
+		{name: "Not nil interface", provider: p, equal: true},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := httphandler.NewController(tc.provider)
+			if tc.equal != assert.Equal(t, &expected, actual) {
+				t.Fatalf("not equals interfaces, expected: %v, actual: %v", expected, actual)
+			}
+		})
+	}
+
+}
+
+// func TestRouting(t *testing.T) {
+// 	t.Run("", func(t *testing.T) {
+// 		srv := httptest.NewServer(handler())
+// 		defer srv.Close()
+
+// 		res, err := http.Get(fmt.Sprintf("%s/", srv.URL))
+// 		if err != nil {
+// 			t.Fatalf("couldn't send GET request: %v", err)
+// 		}
+
+// 		defer errors.Wrap(res.Body.Close(), "could not colse responce body")
+// 		_, err = ioutil.ReadAll(res.Body)
+// 		if err != nil {
+// 			t.Fatalf("couldn't read responce body: %v", err)
+// 		}
+// 		assert.Equal(t, http.StatusOK, res.StatusCode, fmt.Sprintf("expected status %v; got %v", http.StatusOK, res.StatusCode))
+// 	})
+// }
+
 // func TestInsert(t *testing.T) {
 // 	tt := []struct {
 // 		name   string
