@@ -10,6 +10,7 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 )
 
 // Controller describes controller implementation.
@@ -19,11 +20,11 @@ type Controller struct {
 
 // Provider describes provider methods.
 type Provider interface {
-	One(ctx context.Context, value string) (*entity.PersonalData, error)
-	All(ctx context.Context) ([]*entity.PersonalData, error)
+	One(ctx context.Context, value string) (entity.PersonalData, error)
+	All(ctx context.Context) ([]entity.PersonalData, error)
 	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *entity.PersonalData) (int64, error)
-	Insert(ctx context.Context, document *entity.PersonalData) (interface{}, error)
+	Update(ctx context.Context, p entity.PersonalData) (int64, error)
+	Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error)
 }
 
 // personalData is personal data filds description.
@@ -36,15 +37,15 @@ type personalData struct {
 	YearOfBirth int    `json:"yaerOfBirth,omitempty"`
 }
 
-// NewController returns new controller provider
-func NewController(c Provider) *Controller {
-	return &Controller{
+// New returns new controller provider
+func New(c Provider) http.Handler {
+	return Handler(&Controller{
 		CTR: c,
-	}
+	})
 }
 
 // receive returns httphandler package personal data construction.
-func receive(ep *entity.PersonalData) personalData {
+func receive(ep entity.PersonalData) personalData {
 	return personalData{
 		DocumentID:  ep.DocumentID,
 		Name:        ep.Name,
@@ -56,8 +57,8 @@ func receive(ep *entity.PersonalData) personalData {
 }
 
 // transmit returns entity data construction.
-func (p *personalData) transmit() *entity.PersonalData {
-	return &entity.PersonalData{
+func (p *personalData) transmit() entity.PersonalData {
+	return entity.PersonalData{
 		DocumentID:  p.DocumentID,
 		Name:        p.Name,
 		LastName:    p.LastName,
@@ -80,17 +81,19 @@ func Handler(c *Controller) http.Handler {
 	return r
 }
 
-// errRespons returns error to responce.
+// errRespons returns error to response.
 func errRespons(w http.ResponseWriter, code int, err error) {
 	log.Println(err)
 	w.WriteHeader(code)
-	w.Write([]byte(err.Error()))
+	_, err = w.Write([]byte(err.Error()))
+	log.Fatal(errors.Wrap(err, "could not write bytes"))
 }
 
-// successResponce returns succsess responce.
+// successResponce returns success response.
 func successResponce(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
-	w.Write([]byte(message))
+	_, err := w.Write([]byte(message))
+	log.Fatal(errors.Wrap(err, "could not write bytes"))
 }
 
 // ByID returns personal data list by id.
@@ -106,21 +109,23 @@ func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// marshalls data from responce.
+	// marshalls data from response.
 	res, err := json.Marshal(receive(ep))
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	// makes responce to API client.
+	// makes response to API client.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	_, err = w.Write(res)
+	log.Fatal(errors.Wrap(err, "could not write bytes"))
 }
 
 // List returns a list of personaldata.
 func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
+	var pd = make([]personalData, 0)
 	// makes request to controller.
 	usrs, err := c.CTR.All(r.Context())
 	if err != nil {
@@ -129,7 +134,6 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// converts data to httphandler layout.
-	var pd []personalData
 	for _, ep := range usrs {
 		pd = append(pd, receive(ep))
 	}
@@ -141,10 +145,11 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// makes responce to API client.
+	// makes response to API client.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	_, err = w.Write(res)
+	log.Fatal(errors.Wrap(err, "could not write bytes"))
 }
 
 // Insert creates Personal Data by preparing to insert new data to database.
@@ -165,14 +170,24 @@ func (c *Controller) Insert(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// makes insert request to controller.
-	insertResult, err := c.CTR.Insert(r.Context(), p.transmit())
+	result, err := c.CTR.Insert(r.Context(), p.transmit())
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	// makes responce to API client.
-	successResponce(w, http.StatusCreated, fmt.Sprintf("created %v document(s)", insertResult))
+	epres := receive(result)
+	res, err := json.Marshal(epres)
+	if err != nil {
+		errRespons(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// makes response to API client.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_, err = w.Write(res)
+	log.Fatal(errors.Wrap(err, "could not write bytes"))
 }
 
 // Update adds changes to personal information using object ID.
@@ -199,7 +214,7 @@ func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// makes responce to API client.
+	// makes response to API client.
 	successResponce(w, http.StatusCreated, fmt.Sprintf("update %v document(s) successfully", updateResult))
 }
 
@@ -216,6 +231,6 @@ func (c *Controller) Remove(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// makes responce to API client.
+	// makes response to API client.
 	successResponce(w, http.StatusCreated, fmt.Sprintf("deleted %v document(s) successfully", result))
 }

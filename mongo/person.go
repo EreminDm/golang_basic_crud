@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 
@@ -22,26 +23,23 @@ type personalData struct {
 }
 
 // receive returns mongo personal data construction.
-func receive(ep *entity.PersonalData) (*personalData, error) {
+func receive(ep entity.PersonalData) (personalData, error) {
 
 	// returns ObjectID type from string
 	oid, err := primitive.ObjectIDFromHex(ep.DocumentID)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not convert DocumentID type string to type ObjectID")
-	}
-	return &personalData{
+	return personalData{
 		DocumentID:  &oid,
 		Name:        ep.Name,
 		LastName:    ep.LastName,
 		Phone:       ep.Phone,
 		Email:       ep.Email,
 		YearOfBirth: ep.YearOfBirth,
-	}, nil
+	}, errors.Wrap(err, "could not convert DocumentID type string to type ObjectID")
 }
 
 // transmit returns entity data construction.
-func (p *personalData) transmit() *entity.PersonalData {
-	return &entity.PersonalData{
+func (p personalData) transmit() entity.PersonalData {
+	return entity.PersonalData{
 		DocumentID:  p.DocumentID.Hex(),
 		Name:        p.Name,
 		LastName:    p.LastName,
@@ -53,35 +51,37 @@ func (p *personalData) transmit() *entity.PersonalData {
 
 // One returns personal data for a given id,
 // id params to make filtration.
-func (m *Mongodatabase) One(ctx context.Context, id string) (*entity.PersonalData, error) {
+func (m *Mongodatabase) One(ctx context.Context, id string) (entity.PersonalData, error) {
 	var p personalData
 	val, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.Wrap(err, "couldn't decode object id from hex err")
+		return entity.PersonalData{}, errors.Wrap(err, "couldn't decode object id from hex err")
 	}
-	filter := bson.D{{"_id", val}}
+	filter := bson.D{primitive.E{Key: "_id", Value: val}}
 	err = m.Person.FindOne(ctx, filter).Decode(&p)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not find collection ")
-	}
-	return p.transmit(), nil
+	return p.transmit(), errors.Wrap(err, "could not find collection ")
 }
 
 // Insert is a function which adding data to database.
-func (m *Mongodatabase) Insert(ctx context.Context, document *entity.PersonalData) (interface{}, error) {
+func (m *Mongodatabase) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	p, err := receive(document)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not receive data")
+		return entity.PersonalData{}, errors.Wrap(err, "could not receive data")
 	}
 	result, err := m.Person.InsertOne(ctx, p)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not add document(s) in database")
+		return entity.PersonalData{}, errors.Wrap(err, "could not add document(s) in database")
 	}
-	return result.InsertedID, nil
+	document.DocumentID = fmt.Sprintf("%v", result.InsertedID)
+	return document, nil
 }
 
 // All selects all documents from database.
-func (m *Mongodatabase) All(ctx context.Context) ([]*entity.PersonalData, error) {
+func (m *Mongodatabase) All(ctx context.Context) ([]entity.PersonalData, error) {
+	var (
+		epArr = make([]entity.PersonalData, 0)
+		pArr  = make([]personalData, 0)
+	)
 	// no filter by default.
 	// Searches documents in colletion.
 	cursor, err := m.Person.Find(ctx, nil, options.Find())
@@ -89,8 +89,8 @@ func (m *Mongodatabase) All(ctx context.Context) ([]*entity.PersonalData, error)
 		return nil, errors.Wrap(err, "could not find document in database")
 	}
 	defer cursor.Close(ctx)
+
 	// Decode documents from colletion.
-	var pArr []personalData
 	err = cursor.All(ctx, &pArr)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not decode document to struct")
@@ -98,8 +98,8 @@ func (m *Mongodatabase) All(ctx context.Context) ([]*entity.PersonalData, error)
 	if err = cursor.Err(); err != nil {
 		return nil, errors.Wrap(err, "curser error")
 	}
+
 	// converting structs
-	var epArr []*entity.PersonalData
 	for _, p := range pArr {
 		epArr = append(epArr, p.transmit())
 	}
@@ -112,28 +112,26 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 	if err != nil {
 		return 0, errors.Wrap(err, "couldn't decode object id from hex err")
 	}
-	filter := bson.D{{"_id", objectID}}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectID}}
 	delResult, err := m.Person.DeleteOne(ctx, filter)
-	if err != nil {
-		return 0, errors.Wrap(err, "could not remove document")
-	}
-
-	return delResult.DeletedCount, nil
+	return delResult.DeletedCount, errors.Wrap(err, "could not remove document")
 }
 
 // Update rewrites information in db by user id filtration.
-func (m *Mongodatabase) Update(ctx context.Context, ep *entity.PersonalData) (int64, error) {
+func (m *Mongodatabase) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
 	p, err := receive(ep)
 	if err != nil {
 		return 0, errors.Wrap(err, "couldnt receive struct")
 	}
-	filter := bson.D{{"_id", p.DocumentID}}
-	update := bson.D{{
-		"$in", bson.D{{"name", p.Name}, {"lastName", p.LastName}, {"phone", p.Phone}, {"email", p.Email}, {"yaerOfBirth", p.YearOfBirth}},
+	filter := bson.D{primitive.E{Key: "_id", Value: p.DocumentID}}
+	update := bson.D{primitive.E{
+		Key: "$in", Value: bson.D{
+			primitive.E{Key: "name", Value: p.Name},
+			primitive.E{Key: "lastName", Value: p.LastName},
+			primitive.E{Key: "phone", Value: p.Phone},
+			primitive.E{Key: "email", Value: p.Email},
+			primitive.E{Key: "yaerOfBirth", Value: p.YearOfBirth}},
 	}}
 	updateResult, err := m.Person.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return 0, errors.Wrap(err, "could not update object")
-	}
-	return updateResult.ModifiedCount, nil
+	return updateResult.ModifiedCount, errors.Wrap(err, "could not update object")
 }

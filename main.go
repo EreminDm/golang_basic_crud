@@ -12,8 +12,8 @@ import (
 	"github.com/EreminDm/golang_basic_crud/mongo"
 )
 
-// main initialize connection to database using timeout context,
-// makes communication beteen database, controller and http layouts.
+// main initializes connection to database using timeout context,
+// makes communication between database, controller and http layouts.
 func main() {
 	// envf parsing command line flags & returns database URI connection and database name.
 	connURI, dbName := envf()
@@ -29,13 +29,13 @@ func main() {
 	}
 
 	// returns controller provider.
-	c := controller.NewPersonal(m)
+	c := controller.New(m)
 
 	// returns handler provider.
-	h := httphandler.NewController(c)
+	h := httphandler.New(c)
 
 	// port environment define to 8000.
-	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", httphandler.Handler(h)))
+	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", h))
 }
 
 // envf reades command line flags for database connection,
@@ -43,8 +43,18 @@ func main() {
 // databes flag returns database name.
 func envf() (string, string) {
 	var conn, db string
-	flag.StringVar(&conn, "connectURI", "localhost:27017", "-connectURI flag, example: -connectURI=localhost:27017")
-	flag.StringVar(&db, "database", "database_name", "-database_name flag is a name of work database, example: -database_name=database_name_here")
+	flag.StringVar(
+		&conn,
+		"connectURI",
+		"localhost:27017",
+		"-connectURI flag, example: -connectURI=localhost:27017",
+	)
+	flag.StringVar(
+		&db,
+		"database",
+		"database_name",
+		"-database_name flag is a name of work database, example: -database_name=database_name_here",
+	)
 	flag.Parse()
 	return conn, db
 }
