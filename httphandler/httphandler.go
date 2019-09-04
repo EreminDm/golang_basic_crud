@@ -8,33 +8,27 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/gorilla/mux"
 )
 
-// CTRL describes controller implementation.
-type CTRL struct {
-	CTR CTRprovider
+// Controller describes controller implementation.
+type Controller struct {
+	CTR Provider
 }
 
-// CTRprovider describes provider methods.
-type CTRprovider interface {
-	One(ctx context.Context, value string) (*PersonalData, error)
-	All(ctx context.Context) (*[]PersonalData, error)
+// Provider describes provider methods.
+type Provider interface {
+	One(ctx context.Context, value string) (*entity.PersonalData, error)
+	All(ctx context.Context) ([]*entity.PersonalData, error)
 	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *PersonalData) (int64, error)
-	Insert(ctx context.Context, document *PersonalData) (interface{}, error)
+	Update(ctx context.Context, p *entity.PersonalData) (int64, error)
+	Insert(ctx context.Context, document *entity.PersonalData) (interface{}, error)
 }
 
-// NewCTRL returns new controller provider
-func NewCTRL(c CTRprovider) (*CTRL, error) {
-	return &CTRL{
-		CTR: c,
-	}, nil
-}
-
-// PersonalData is Personal Data filds description.
-type PersonalData struct {
-	DocumentID  string `json:"id,omitempty"` // as *primitive.ObjectID.
+// personalData is personal data filds description.
+type personalData struct {
+	DocumentID  string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	LastName    string `json:"lastName"`
 	Phone       string `json:"phone,omitempty"`
@@ -42,8 +36,39 @@ type PersonalData struct {
 	YearOfBirth int    `json:"yaerOfBirth,omitempty"`
 }
 
+// NewController returns new controller provider
+func NewController(c Provider) (*Controller, error) {
+	return &Controller{
+		CTR: c,
+	}, nil
+}
+
+// receive returns httphandler package personal data construction.
+func receive(ep *entity.PersonalData) personalData {
+	return personalData{
+		DocumentID:  ep.DocumentID,
+		Name:        ep.Name,
+		LastName:    ep.LastName,
+		Phone:       ep.Phone,
+		Email:       ep.Email,
+		YearOfBirth: ep.YearOfBirth,
+	}
+}
+
+// transmit returns entity data construction.
+func (p *personalData) transmit() *entity.PersonalData {
+	return &entity.PersonalData{
+		DocumentID:  p.DocumentID,
+		Name:        p.Name,
+		LastName:    p.LastName,
+		Phone:       p.Phone,
+		Email:       p.Email,
+		YearOfBirth: p.YearOfBirth,
+	}
+}
+
 // Handler is function for routing map navigation.
-func Handler(c *CTRL) http.Handler {
+func Handler(c *Controller) http.Handler {
 	// making new router.
 	r := mux.NewRouter()
 	// handling urls API.
@@ -69,94 +94,128 @@ func successResponce(w http.ResponseWriter, code int, message string) {
 }
 
 // ByID returns personal data list by id.
-func (c *CTRL) ByID(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
+	// reads parameters from url.
 	params := mux.Vars(r)
 	id := params["id"]
-	result, err := c.CTR.One(r.Context(), id)
+
+	// makes request to controller.
+	ep, err := c.CTR.One(r.Context(), id)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	res, err := json.Marshal(result)
+
+	// marshalls data from responce.
+	res, err := json.Marshal(receive(ep))
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// makes responce to API client.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
 
 // List returns a list of personaldata.
-func (c *CTRL) List(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
+	// makes request to controller.
 	usrs, err := c.CTR.All(r.Context())
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
-	responceBody, err := json.Marshal(usrs)
+
+	// converts data to httphandler layout.
+	var pd []personalData
+	for _, ep := range usrs {
+		pd = append(pd, receive(ep))
+	}
+
+	// marshalls data to hson byte format.
+	res, err := json.Marshal(pd)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// makes responce to API client.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(responceBody)
+	w.Write(res)
 }
 
 // Insert creates Personal Data by preparing to insert new data to database.
-func (c *CTRL) Insert(w http.ResponseWriter, r *http.Request) {
-	var p PersonalData
+func (c *Controller) Insert(w http.ResponseWriter, r *http.Request) {
+	// reads request body.
+	var p personalData
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "could not read request body", http.StatusBadRequest)
 		return
 	}
+
+	// unmarshal to json struct.
 	err = json.Unmarshal(body, &p)
 	if err != nil {
 		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
 
-	insertResult, err := c.CTR.Insert(r.Context(), &p)
+	// makes insert request to controller.
+	insertResult, err := c.CTR.Insert(r.Context(), p.transmit())
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// makes responce to API client.
 	successResponce(w, http.StatusCreated, fmt.Sprintf("created %v document(s)", insertResult))
 }
 
 // Update adds changes to personal information using object ID.
-func (c *CTRL) Update(w http.ResponseWriter, r *http.Request) {
-	var p PersonalData
+func (c *Controller) Update(w http.ResponseWriter, r *http.Request) {
+	var p personalData
 	// reading request body information.
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	// Unmarshal body to personalData object.
+
+	// unmarshal body to personalData object.
 	err = json.Unmarshal(body, &p)
 	if err != nil {
 		errRespons(w, http.StatusBadRequest, err)
 		return
 	}
-	updateResult, err := c.CTR.Update(r.Context(), &p)
+
+	// makes update request to controller.
+	updateResult, err := c.CTR.Update(r.Context(), p.transmit())
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// makes responce to API client.
 	successResponce(w, http.StatusCreated, fmt.Sprintf("update %v document(s) successfully", updateResult))
 }
 
 // Remove deletes object using url param id which is objectID in database.
-func (c *CTRL) Remove(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Remove(w http.ResponseWriter, r *http.Request) {
+	// reads parameters from url.
 	params := mux.Vars(r)
 	idvalue := params["id"]
+
+	// makes remove request to controller.
 	result, err := c.CTR.Remove(r.Context(), idvalue)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	// makes responce to API client.
 	successResponce(w, http.StatusCreated, fmt.Sprintf("deleted %v document(s) successfully", result))
 }
