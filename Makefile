@@ -3,7 +3,6 @@
     GOBUILD=$(GOCMD) build
     GOTEST=$(GOCMD) test
 	GOLANGCI=golangci-lint
-
 all: litern test
 
 litern:
