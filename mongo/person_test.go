@@ -148,3 +148,49 @@ func TestInsert(t *testing.T) {
 		})
 	}
 }
+
+func TestAll(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	m, err := Connect(context.TODO(), "192.168.99.100:27017", collection)
+	assert.NoError(t, err, "could not connect to db")
+	tt := []struct {
+		name       string
+		collection *Mongodatabase
+		expectedT  entity.PersonalData
+		ctx        context.Context
+		err        string
+	}{
+		{
+			name:       "Select all without errors",
+			collection: m,
+			expectedT:  entity.PersonalData{},
+			ctx:        ctx,
+			err:        "",
+		},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			actualSlice, err := tc.collection.All(tc.ctx)
+			assert.NoError(t, err, "could not select data from database")
+			for _, aep := range actualSlice {
+				assert.Equal(
+					t,
+					tc.err,
+					err,
+					fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedT, aep),
+				)
+			}
+
+			if tc.err != "" {
+				assert.Equal(
+					t,
+					tc.err,
+					err,
+					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
+				)
+			}
+
+		})
+	}
+}
