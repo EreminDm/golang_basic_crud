@@ -9,7 +9,7 @@ all: lint test
 
 .PHONY: lint
 lint:
-	$(GOLANGCI) run --enable-all
+	$(GOLANGCI) run
 
 .PHONY: test
 test:
