@@ -5,12 +5,12 @@ GOTEST=$(GOCMD) test
 GOLANGCI=golangci-lint
 
 .PHONY: all
-all: litern test
+all: lint test
 
 .PHONY: lint
 lint:
-$(GOLANGCI) run --enable-all
+	$(GOLANGCI) run --enable-all
 
 .PHONY: test
 test:
- $(GOTEST) -v ./...
+	$(GOTEST) -v ./...
