@@ -6,13 +6,3 @@ go:
 - 1.13.x
 - master
 
-go_import_path: 
-- "github.com/EreminDm/golang_basic_crud/controller"
-- "github.com/EreminDm/golang_basic_crud/httphandler"
-- "github.com/EreminDm/golang_basic_crud/mongo"
-- "github.com/pkg/errors"
-- "github.com/gorilla/mux"
-- "github.com/stretchr/testify/assert"
-- "go.mongodb.org/mongo-driver/mongo"
-- "go.mongodb.org/mongo-driver/mongo/options"
-- "go.mongodb.org/mongo-driver/bson/primitive"
