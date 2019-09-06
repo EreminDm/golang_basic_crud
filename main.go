@@ -15,7 +15,9 @@ import (
 // main initializes connection to database using timeout context,
 // makes communication between database, controller and http layouts.
 func main() {
-	// envf parsing command line flags & returns database URI connection and database name.
+	// envf parsing command line flags & returns database URI connection and database name,
+	// connURI = "192.168.99.100:27017",
+	// dbName = "information".
 	connURI, dbName := envf()
 
 	// create context for db connection.
@@ -25,7 +27,7 @@ func main() {
 	// returns mongo collection.
 	m, err := mongo.Connect(ctx, connURI, dbName)
 	if err != nil {
-		log.Fatalf(`couldn't connect to database: %v`, err)
+		log.Panicf(`couldn't connect to database: %v`, err)
 	}
 
 	// returns controller provider.
@@ -46,13 +48,13 @@ func envf() (string, string) {
 	flag.StringVar(
 		&conn,
 		"connectURI",
-		"localhost:27017",
+		"192.168.99.100:27017",
 		"-connectURI flag, example: -connectURI=localhost:27017",
 	)
 	flag.StringVar(
 		&db,
 		"database",
-		"database_name",
+		"information",
 		"-database_name flag is a name of work database, example: -database_name=database_name_here",
 	)
 	flag.Parse()

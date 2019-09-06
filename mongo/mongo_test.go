@@ -28,6 +28,7 @@ func TestConnect(t *testing.T) {
 		},
 	}
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			mc, err := mongo.Connect(tc.context, tc.connectionURI, tc.dbName)
 			assert.NoError(

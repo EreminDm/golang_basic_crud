@@ -23,7 +23,7 @@ type personalData struct {
 }
 
 // receive returns mongo personal data construction.
-func receive(ep entity.PersonalData) (personalData, error) {
+func receive(ep *entity.PersonalData) (personalData, error) {
 
 	// returns ObjectID type from string
 	oid, err := primitive.ObjectIDFromHex(ep.DocumentID)
@@ -63,7 +63,8 @@ func (m *Mongodatabase) One(ctx context.Context, id string) (entity.PersonalData
 }
 
 // Insert is a function which adding data to database.
-func (m *Mongodatabase) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
+func (m *Mongodatabase) Insert(ctx context.Context, document *entity.PersonalData) (entity.PersonalData, error) {
+
 	p, err := receive(document)
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not receive data")
@@ -72,8 +73,15 @@ func (m *Mongodatabase) Insert(ctx context.Context, document entity.PersonalData
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not add document(s) in database")
 	}
-	document.DocumentID = fmt.Sprintf("%v", result.InsertedID)
-	return document, nil
+
+	return entity.PersonalData{
+		DocumentID:  fmt.Sprintf("%v", result.InsertedID),
+		Name:        p.Name,
+		LastName:    p.LastName,
+		Phone:       p.Phone,
+		Email:       p.Email,
+		YearOfBirth: p.YearOfBirth,
+	}, nil
 }
 
 // All selects all documents from database.
@@ -118,7 +126,7 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 }
 
 // Update rewrites information in db by user id filtration.
-func (m *Mongodatabase) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
+func (m *Mongodatabase) Update(ctx context.Context, ep *entity.PersonalData) (int64, error) {
 	p, err := receive(ep)
 	if err != nil {
 		return 0, errors.Wrap(err, "couldnt receive struct")

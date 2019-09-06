@@ -43,9 +43,10 @@ func TestRecive(t *testing.T) {
 	}
 
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			//Using the variable on range scope `tc` in function literal (scopelint)
-			actualT, err := receive(tc.enterT)
+			// Using the variable on range scope `tc` in function literal (scopelint)
+			actualT, err := receive(&tc.enterT)
 			if tc.err != nil {
 				assert.Equal(
 					t,
@@ -99,6 +100,7 @@ func TestTransmit(t *testing.T) {
 	}
 
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			actualT := tc.enterT.transmit()
 			assert.Equal(
@@ -141,8 +143,9 @@ func TestInsert(t *testing.T) {
 	}
 
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
 			if tc.err != nil {
 				assert.Equal(
 					t,
@@ -179,6 +182,7 @@ func TestAll(t *testing.T) {
 		},
 	}
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			actualSlice, err := tc.collection.All(tc.ctx)
 			if tc.err != nil {
