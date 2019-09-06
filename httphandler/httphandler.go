@@ -86,14 +86,14 @@ func errRespons(w http.ResponseWriter, code int, err error) {
 	log.Println(err)
 	w.WriteHeader(code)
 	_, err = w.Write([]byte(err.Error()))
-	log.Fatal(errors.Wrap(err, "could not write bytes"))
+	log.Panic(errors.Wrap(err, "could not write bytes"))
 }
 
 // successResponce returns success response.
 func successResponce(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
 	_, err := w.Write([]byte(message))
-	log.Fatal(errors.Wrap(err, "could not write bytes"))
+	log.Panic(errors.Wrap(err, "could not write bytes"))
 }
 
 // ByID returns personal data list by id.
@@ -120,7 +120,7 @@ func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
-	log.Fatal(errors.Wrap(err, "could not write bytes"))
+	log.Panic(errors.Wrap(err, "could not write bytes"))
 }
 
 // List returns a list of personaldata.
@@ -149,7 +149,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(res)
-	log.Fatal(errors.Wrap(err, "could not write bytes"))
+	log.Panic(errors.Wrap(err, "could not write bytes"))
 }
 
 // Insert creates Personal Data by preparing to insert new data to database.
@@ -187,7 +187,7 @@ func (c *Controller) Insert(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(res)
-	log.Fatal(errors.Wrap(err, "could not write bytes"))
+	log.Panic(errors.Wrap(err, "could not write bytes"))
 }
 
 // Update adds changes to personal information using object ID.

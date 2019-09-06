@@ -1,12 +1,16 @@
 # Go parameters
-    GOCMD=go
-    GOBUILD=$(GOCMD) build
-    GOTEST=$(GOCMD) test
-	GOLANGCI=golangci-lint
+GOCMD=go
+GOBUILD=$(GOCMD) build
+GOTEST=$(GOCMD) test
+GOLANGCI=golangci-lint
+
+.PHONY: all
 all: litern test
 
-litern:
+.PHONY: lint
+lint:
 $(GOLANGCI) run --enable-all
 
+.PHONY: test
 test:
  $(GOTEST) -v ./...

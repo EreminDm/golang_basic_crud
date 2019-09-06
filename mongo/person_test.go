@@ -18,7 +18,7 @@ func TestRecive(t *testing.T) {
 		name      string
 		enterT    entity.PersonalData
 		expectedT personalData
-		err       string
+		err       error
 	}{
 		{
 			name: "Recive data from entity package type to mongo",
@@ -38,7 +38,7 @@ func TestRecive(t *testing.T) {
 				Email:       "test@test.test",
 				YearOfBirth: 1234,
 			},
-			err: "",
+			err: nil,
 		},
 	}
 
@@ -46,6 +46,14 @@ func TestRecive(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			//Using the variable on range scope `tc` in function literal (scopelint)
 			actualT, err := receive(tc.enterT)
+			if tc.err != nil {
+				assert.Equal(
+					t,
+					tc.err,
+					err,
+					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
+				)
+			}
 			assert.NoError(
 				t,
 				err,
@@ -114,7 +122,7 @@ func TestInsert(t *testing.T) {
 		collection *Mongodatabase
 		enterT     entity.PersonalData
 		ctx        context.Context
-		err        string
+		err        error
 	}{
 		{
 			name:       "",
@@ -128,15 +136,14 @@ func TestInsert(t *testing.T) {
 				YearOfBirth: 1234,
 			},
 			ctx: ctx,
-			err: "",
+			err: nil,
 		},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
-			assert.NoError(t, err, "could not insert data to database")
-			if tc.err != "" {
+			if tc.err != nil {
 				assert.Equal(
 					t,
 					tc.err,
@@ -145,33 +152,43 @@ func TestInsert(t *testing.T) {
 				)
 				return
 			}
+			assert.NoError(t, err, "could not insert data to database")
+
 		})
 	}
 }
 
 func TestAll(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(context.TODO(), "192.168.99.100:27017", collection)
+	m, err := Connect(context.Background(), "192.168.99.100:27017", collection)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *Mongodatabase
 		expectedT  entity.PersonalData
 		ctx        context.Context
-		err        string
+		err        error
 	}{
 		{
 			name:       "Select all without errors",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			ctx:        ctx,
-			err:        "",
+			err:        nil,
 		},
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			actualSlice, err := tc.collection.All(tc.ctx)
+			if tc.err != nil {
+				assert.Equal(
+					t,
+					tc.err,
+					err,
+					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
+				)
+			}
 			assert.NoError(t, err, "could not select data from database")
 			for _, aep := range actualSlice {
 				assert.Equal(
@@ -179,15 +196,6 @@ func TestAll(t *testing.T) {
 					tc.err,
 					err,
 					fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedT, aep),
-				)
-			}
-
-			if tc.err != "" {
-				assert.Equal(
-					t,
-					tc.err,
-					err,
-					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
 				)
 			}
 
