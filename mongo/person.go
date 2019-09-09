@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // personalData description.
@@ -92,7 +91,7 @@ func (m *Mongodatabase) All(ctx context.Context) ([]entity.PersonalData, error) 
 	)
 	// no filter by default.
 	// Searches documents in colletion.
-	cursor, err := m.Person.Find(ctx, nil, options.Find())
+	cursor, err := m.Person.Find(ctx, bson.D{})
 	if err != nil {
 		return nil, errors.Wrap(err, "could not find document in database")
 	}
