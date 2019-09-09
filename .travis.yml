@@ -5,3 +5,7 @@ go:
 
 services:
   - mongodb
+
+before_script:
+  - sleep 15
+  - mongo information --eval
