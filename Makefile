@@ -5,7 +5,7 @@ GOTEST=$(GOCMD) test
 GOLANGCI=golangci-lint
 
 .PHONY: all
-all: install mlint test
+all: install lint test
 
 .PHONY: install
 install:
