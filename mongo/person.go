@@ -132,7 +132,7 @@ func (m *Mongodatabase) Update(ctx context.Context, ep *entity.PersonalData) (in
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: p.DocumentID}}
 	update := bson.D{primitive.E{
-		Key: "$in", Value: bson.D{
+		Key: "$set", Value: bson.D{
 			primitive.E{Key: "name", Value: p.Name},
 			primitive.E{Key: "lastName", Value: p.LastName},
 			primitive.E{Key: "phone", Value: p.Phone},
