@@ -15,6 +15,7 @@ install:
 	$(GOCMD) get "github.com/stretchr/testify/assert"
 .PHONY: lint
 lint:
+	$(GOCMD) get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	$(GOLANGCI) run
 
 .PHONY: test
