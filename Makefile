@@ -12,7 +12,7 @@ install:
 	$(GOCMD) get "github.com/pkg/errors"
 	$(GOCMD) get "github.com/gorilla/mux" 
 	$(GOCMD) get "go.mongodb.org/mongo-driver/mongo"
-
+	$(GOCMD) get "github.com/stretchr/testify/assert"
 .PHONY: lint
 lint:
 	$(GOLANGCI) run
