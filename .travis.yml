@@ -9,3 +9,7 @@ services:
 before_script:
   - sleep 15
   - mongo information
+
+script:
+  - golangci-lint run
+  - go test -v ./...
