@@ -13,9 +13,6 @@
       "maligned": {
         "suggest-new": true
       },
-      "dupl": {
-        "threshold": 100
-      },
       "goconst": {
         "min-len": 2,
         "min-occurrences": 2
@@ -38,12 +35,13 @@
       "gocritic": {
         "enabled-tags": [
           "performance",
-          "style",
-          "experimental"
+          "style"
         ],
         "disabled-checks": [
           "wrapperFunc",
-          "dupImport"
+          "dupImport",
+          "hugeParam",
+          "unnamedResult"
         ]
       }
     },
