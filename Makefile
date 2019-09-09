@@ -11,7 +11,7 @@ all: install mlint test
 install:
 	$(GOCMD) get "github.com/pkg/errors"
 	$(GOCMD) get "github.com/gorilla/mux" 
-	$(GOCMD) get "go.mongodb.org/mongo-driver/mongo
+	$(GOCMD) get "go.mongodb.org/mongo-driver/mongo"
 
 .PHONY: lint
 lint:
