@@ -5,7 +5,13 @@ GOTEST=$(GOCMD) test
 GOLANGCI=golangci-lint
 
 .PHONY: all
-all: lint test
+all: install lint test
+
+.PHONY: install
+install:
+	$(GOCMD) get "github.com/pkg/errors"
+	$(GOCMD) get "github.com/gorilla/mux" 
+	$(GOCMD) get "go.mongodb.org/mongo-driver"
 
 .PHONY: lint
 lint:
