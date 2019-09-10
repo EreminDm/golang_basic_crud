@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 // collection is database collection for monog db connected.
@@ -28,10 +29,10 @@ func Connect(ctx context.Context, connectionURI, databaseName string) (*Mongodat
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't connect to database using uri")
 	}
-	// err = client.Ping(ctx, readpref.Primary())
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "couldn't ping database after connection using uri")
-	// }
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't ping database after connection using uri")
+	}
 	clt := client.Database(databaseName).Collection(collection)
 	return &Mongodatabase{
 		Person: clt,

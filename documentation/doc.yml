@@ -1,0 +1,149 @@
+openapi: '3.0.2'
+info:
+  description: "This is basic interpretation of CRUD methods using Mongo database"
+  version: "1.0.0"
+  title: "Swagger Petstore"
+  contact:
+    email: "eremin.dm@gmail.com"
+servers:
+  - url: http://localhost:8000/
+tags:
+  - name: "person information"
+    description: "Operations about user"
+paths:
+  /:
+    get:
+      tags:
+      - person information
+      summary: Find all persons information
+      #description: Multiple status values can be provided with comma separated strings
+      operationId: All
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        500:
+          description: Invalid status value
+          content: {}
+    post:
+      tags:
+      - person information
+      summary: Add persons information in database
+      operationId: Insert
+      requestBody:
+        description: Person object that needs to be added to the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonInsert'
+        required: true
+      responses:
+        201:
+          description: created
+                 
+        500:
+          description: Invalid status value
+          content: {}
+    put:
+      tags:
+      - person information
+      summary: Edit persons information in database
+      operationId: Edit
+      requestBody:
+        description: Person object that needs to be edited in the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+        required: true
+      responses:
+        200:
+          description: Success
+                 
+        500:
+          description: Invalid status value
+          content: {}
+  /{id}:
+    get:
+      tags:
+      - by id
+      summary: Find persons information by id
+      operationId: ByID
+      parameters:
+        - name: id
+          in: path
+          description: ID of person information to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                 $ref: '#/components/schemas/Person'
+                 
+        500:
+          description: Invalid status value
+          content: {}
+    delete:
+      tags:
+      - by id
+      summary: Remove persons information by id
+      operationId: Remove
+      parameters:
+        - name: id
+          in: path
+          description: ID of person information to return
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation                 
+        500:
+          description: Invalid status value
+          content: {}
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 5d7639ffa3445ca1b08b8f88
+        name:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+          example: "+375 12 123 45 67"
+        email:
+          type: string
+          example: email@box.com
+        yaerOfBirth:
+          type: integer
+          example: 1990
+    PersonInsert:
+      type: object
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+          example: "+375 12 123 45 67"
+        email:
+          type: string
+          example: email@box.com
+        yaerOfBirth:
+          type: integer
+          example: 1990

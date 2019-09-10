@@ -5,7 +5,7 @@ GOTEST=$(GOCMD) test
 GOLANGCI=golangci-lint
 
 .PHONY: all
-all: lint test
+all: test lint 
 
 .PHONY: lint
 lint:
