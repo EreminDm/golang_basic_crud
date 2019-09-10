@@ -1,24 +1,125 @@
-package httphandler_test
+package httphandler
 
-// func TestNewController(t *testing.T) {
-// 	var expected httphandler.Controller
-// 	var p httphandler.Provider
+import (
+	"fmt"
+	"testing"
 
-// 	tt := []struct {
-// 		name     string
-// 		provider httphandler.Provider
-// 		equal    bool
-// 	}{
-// 		{name: "Not nil interface", provider: p, equal: true},
-// 	}
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			actual := httphandler.New(tc.provider)
-// 			if tc.equal != assert.Equal(t, &expected, actual) {
-// 				t.Fatalf("not equals interfaces, expected: %v, actual: %v", expected, actual)
-// 			}
-// 		})
-// 	}
+	"github.com/EreminDm/golang_basic_crud/entity"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestNewController(t *testing.T) {
+	var p Provider
+	var expected mux.Router
+
+	tt := []struct {
+		name     string
+		provider Provider
+		equal    bool
+	}{
+		{name: "Not nil interface", provider: p, equal: true},
+	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := New(tc.provider)
+			if tc.equal != assert.IsType(t, &expected, actual) {
+				t.Fatalf("not equals interfaces, expected: %v, actual: %v", expected, actual)
+			}
+		})
+	}
+}
+
+func TestReceive(t *testing.T) {
+	tt := []struct {
+		name      string
+		enterT    entity.PersonalData
+		expectedT personalData
+		err       error
+	}{
+		{
+			name: "Recive data from entity package type to mongo",
+			enterT: entity.PersonalData{
+				DocumentID:  "ObjectID",
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			expectedT: personalData{
+				DocumentID:  "ObjectID",
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			err: nil,
+		},
+	}
+
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// Using the variable on range scope `tc` in function literal (scopelint)
+			actualT := receive(&tc.enterT)
+			assert.Equal(
+				t,
+				tc.expectedT,
+				actualT,
+				fmt.Sprintf("expected type %v, actual %v", tc.expectedT, actualT),
+			)
+		})
+	}
+}
+
+func TestTransmit(t *testing.T) {
+	tt := []struct {
+		name      string
+		enterT    personalData
+		expectedT *entity.PersonalData
+		err       error
+	}{
+		{
+			name: "Recive data from entity package type to mongo",
+			enterT: personalData{
+				DocumentID:  "ObjectID",
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			expectedT: &entity.PersonalData{
+				DocumentID:  "ObjectID",
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			err: nil,
+		},
+	}
+
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// Using the variable on range scope `tc` in function literal (scopelint)
+			actualT := tc.enterT.transmit()
+			assert.Equal(
+				t,
+				tc.expectedT,
+				actualT,
+				fmt.Sprintf("expected type %v, actual %v", tc.expectedT, actualT),
+			)
+		})
+	}
+}
+
+// func TestErrRespons(t *testing.T){
+// 	errRespons()
 
 // }
 
