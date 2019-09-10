@@ -1,6 +1,8 @@
 package httphandler
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -202,84 +204,68 @@ func TestSuccessResponce(t *testing.T) {
 	}
 }
 
-// func TestHandler(t *testing.T) {
-// 	var c *httphandler.Controller
+func TestInsert(t *testing.T) {
+	var p Provider
+	tt := []struct {
+		name     string
+		method   string
+		body     []byte
+		object   personalData
+		provider Provider
+		status   int
+		c        *Controller
+		err      string
+	}{
+		{
+			name:   "post request",
+			method: "POST",
+			body:   nil,
+			object: personalData{
+				DocumentID:  "",
+				Name:        "firstName",
+				LastName:    "secondName",
+				Phone:       "",
+				Email:       "",
+				YearOfBirth: 1980,
+			},
+			provider: p,
+			status:   http.StatusCreated,
+		},
+	}
 
-// 	t.Run("", func(t *testing.T) {
-// 		srv := httptest.NewServer(httphandler.Handler(c))
-// 		defer srv.Close()
-// 		fmt.Println(fmt.Sprintf("%s/", srv.URL))
-// 		res, err := http.Get(fmt.Sprintf("%s/", srv.URL))
-// 		if err != nil {
-// 			t.Fatalf("couldn't send GET request: %v", err)
-// 		}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			var err error
+			tc.body, err = json.Marshal(tc.object)
+			assert.NoError(
+				t,
+				err,
+				fmt.Sprintf("couldn't marshal request body: %v", err),
+			)
 
-// 		defer errors.Wrap(res.Body.Close(), "could not close response body")
-// 		_, err = ioutil.ReadAll(res.Body)
-// 		if err != nil {
-// 			t.Fatalf("couldn't read response body: %v", err)
-// 		}
-// 		assert.Equal(
-// t,
-// http.StatusOK,
-//  res.StatusCode,
-//   fmt.Sprintf("expected status %v; got %v", http.StatusOK, res.StatusCode),
-// )
-// 	})
-// }
+			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
+			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
 
-// func TestInsert(t *testing.T) {
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		body   []byte
-// 		status int
-// 		err    string
-// 	}{
-// 		{name: "post request", method: "POST", body: nil, status: http.StatusCreated},
-// 	}
-// 	// addedObject which will used in request body.
-// 	addedObject := &network.PersonalData{
-// DocumentID: "",
-//  Name: "firstName",
-//   LastName: "secondName",
-//    Phone: "",
-//    Email: "",
-// 	YearOfBirth: 1980,
-// }
+			rec := httptest.NewRecorder()
+			tc.c.Insert(rec, req)
 
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			var err error
-// 			tc.body, err = json.Marshal(addedObject)
-// 			assert.NoError(
-// t,
-//  err,
-//   fmt.Sprintf("couldn't marshal request body: %v", err),
-// )
+			res := rec.Result()
+			defer res.Body.Close()
 
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
-
-// 			rec := httptest.NewRecorder()
-// 			network.Insert(rec, req)
-
-// 			res := rec.Result()
-// 			defer res.Body.Close()
-
-// 			if tc.err != "" {
-// 				assert.Equal(
-// 	t,
-// 	http.StatusBadRequest,
-// 	res.StatusCode,
-// 	fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
-// )
-// 				return
-// 			}
-// 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
-// 		})
-// 	}
-// }
+			if tc.err != "" {
+				assert.Equal(
+					t,
+					http.StatusBadRequest,
+					res.StatusCode,
+					fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
+				)
+				return
+			}
+			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
+		})
+	}
+}
 
 // func TestList(t *testing.T) {
 // 	var expectedObject *network.PersonalData
