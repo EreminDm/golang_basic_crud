@@ -27,7 +27,7 @@ func main() {
 	// returns mongo collection.
 	m, err := mongo.Connect(ctx, connURI, dbName)
 	if err != nil {
-		log.Panicf(`couldn't connect to database: %v`, err)
+		log.Fatalf(`couldn't connect to database: %v`, err)
 	}
 
 	// returns controller provider.

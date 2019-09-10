@@ -93,17 +93,17 @@ func (m *Mongodatabase) All(ctx context.Context) ([]entity.PersonalData, error) 
 	// Searches documents in colletion.
 	cursor, err := m.Person.Find(ctx, bson.D{})
 	if err != nil {
-		return nil, errors.Wrap(err, "could not find document in database")
+		return epArr, errors.Wrap(err, "could not find document in database")
 	}
 	defer cursor.Close(ctx)
 
 	// Decode documents from colletion.
 	err = cursor.All(ctx, &pArr)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not decode document to struct")
+		return epArr, errors.Wrap(err, "could not decode document to struct")
 	}
 	if err = cursor.Err(); err != nil {
-		return nil, errors.Wrap(err, "curser error")
+		return epArr, errors.Wrap(err, "curser error")
 	}
 
 	// converting structs
