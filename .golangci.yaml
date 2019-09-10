@@ -21,13 +21,6 @@ linters-settings:
     line-length: 140
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
-  gocritic:
-    enabled-tags:
-    - performance
-    - style
-    disabled-checks:
-    - hugeParam
-    - unnamedResult
 linters:
   enable-all: true
   disable:
