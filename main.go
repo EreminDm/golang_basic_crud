@@ -16,10 +16,10 @@ import (
 // makes communication between database, controller and http layouts.
 func main() {
 	// envf parsing command line flags & returns database URI connection and database name,
-
+	// connURI = "192.168.99.100:27017",
+	// dbName = "information".
 	connURI, dbName := envf()
-	connURI = "192.168.99.100:27017"
-	dbName = "information"
+
 	// create context for db connection.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
