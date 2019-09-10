@@ -2,10 +2,13 @@ package httphandler
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -118,10 +121,85 @@ func TestTransmit(t *testing.T) {
 	}
 }
 
-// func TestErrRespons(t *testing.T){
-// 	errRespons()
+func TestErrRespons(t *testing.T) {
+	tt := []struct {
+		name           string
+		httpStatus     int
+		expectedStatus int
+		httpError      error
+	}{
+		{
+			name:           "Bad response",
+			httpStatus:     http.StatusBadRequest,
+			expectedStatus: http.StatusBadRequest,
+			httpError:      errors.New("Bad request"),
+		},
+	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// New Recorder creates a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+			rr := httptest.NewRecorder()
+			errRespons(rr, tc.httpStatus, tc.httpError)
 
-// }
+			assert.Equal(
+				t,
+				tc.expectedStatus,
+				rr.Code,
+				fmt.Sprintf("handler returned wrong status code: got %v want %v",
+					rr.Code, tc.expectedStatus),
+			)
+
+			assert.Equal(
+				t,
+				tc.httpError.Error(),
+				rr.Body.String(),
+				fmt.Sprintf("handler returned unexpected body: got %v want %v",
+					rr.Body.String(), tc.httpError.Error()),
+			)
+		})
+	}
+}
+
+func TestSuccessResponce(t *testing.T) {
+	tt := []struct {
+		name           string
+		httpStatus     int
+		expectedStatus int
+		message        string
+	}{
+		{
+			name:           "Success response",
+			httpStatus:     http.StatusOK,
+			expectedStatus: http.StatusOK,
+			message:        "OK",
+		},
+	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// New Recorder creates a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+			rr := httptest.NewRecorder()
+			successResponce(rr, tc.httpStatus, tc.message)
+
+			assert.Equal(
+				t,
+				tc.expectedStatus,
+				rr.Code,
+				fmt.Sprintf("handler returned wrong status code: got %v want %v",
+					rr.Code, tc.expectedStatus),
+			)
+
+			assert.Equal(
+				t,
+				tc.message,
+				rr.Body.String(),
+				fmt.Sprintf("handler returned unexpected body: got %v want %v",
+					rr.Body.String(), tc.message),
+			)
+		})
+	}
+}
 
 // func TestHandler(t *testing.T) {
 // 	var c *httphandler.Controller
