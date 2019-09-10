@@ -24,6 +24,7 @@ func TestNewController(t *testing.T) {
 		{name: "Not nil interface", provider: p, equal: true},
 	}
 	for _, tc := range tt {
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			actual := New(tc.provider)
 			if tc.equal != assert.IsType(t, &expected, actual) {
@@ -132,7 +133,7 @@ func TestErrRespons(t *testing.T) {
 			name:           "Bad response",
 			httpStatus:     http.StatusBadRequest,
 			expectedStatus: http.StatusBadRequest,
-			httpError:      errors.New("Bad request"),
+			httpError:      errors.New("bad request"),
 		},
 	}
 	for _, tc := range tt {
