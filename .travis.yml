@@ -16,4 +16,4 @@ script:
 
 after_success:
   - go install github.com/mattn/goveralls
-  - $(go env GOPATH)/bin/goveralls -service=travis-ci
+  - goveralls -package github.com/EreminDm/golang_basic_crud -service=travis-ci
