@@ -205,7 +205,6 @@ func TestSuccessResponce(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-
 	var p Provider
 	tt := []struct {
 		name     string
@@ -244,20 +243,15 @@ func TestInsert(t *testing.T) {
 				err,
 				fmt.Sprintf("couldn't marshal request body: %v", err),
 			)
-
 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
-
 			rec := httptest.NewRecorder()
 			tc.c = &Controller{
 				CTR: p,
 			}
-
 			tc.c.Insert(rec, req)
-
 			res := rec.Result()
 			defer res.Body.Close()
-
 			if tc.err != "" {
 				assert.Equal(
 					t,
