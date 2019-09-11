@@ -205,6 +205,7 @@ func TestSuccessResponce(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
+
 	var p Provider
 	tt := []struct {
 		name     string
@@ -248,6 +249,10 @@ func TestInsert(t *testing.T) {
 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
 
 			rec := httptest.NewRecorder()
+			tc.c = &Controller{
+				CTR: p,
+			}
+
 			tc.c.Insert(rec, req)
 
 			res := rec.Result()
