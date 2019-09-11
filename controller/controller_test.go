@@ -10,6 +10,7 @@ import (
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/EreminDm/golang_basic_crud/mongo"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestNew(t *testing.T) {
@@ -45,17 +46,17 @@ func TestInsert(t *testing.T) {
 
 	defer cancel()
 	tt := []struct {
-		name        string
-		provider    controller.DBProvider
-		context     context.Context
-		document    entity.PersonalData
-		expectedDoc entity.PersonalData
+		name     string
+		provider controller.DBProvider
+		context  context.Context
+		document entity.PersonalData
 	}{
 		{
-			name:     "New controller",
+			name:     "Insert controller",
 			provider: c,
 			context:  ctx,
 			document: entity.PersonalData{
+				DocumentID:  primitive.NilObjectID.Hex(),
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
