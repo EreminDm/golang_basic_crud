@@ -56,7 +56,7 @@ func TestInsert(t *testing.T) {
 			provider: c,
 			context:  ctx,
 			document: entity.PersonalData{
-				DocumentID:  primitive.NilObjectID.Hex(),
+				DocumentID:  primitive.NewObjectID().Hex(),
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
