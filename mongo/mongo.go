@@ -11,7 +11,7 @@ import (
 
 // collection is database collection for monog db connected.
 const (
-	collection = "information"
+	collectionName = "information"
 )
 
 // Mongodatabase is a Mongo collections.
@@ -33,7 +33,7 @@ func Connect(ctx context.Context, connectionURI, databaseName string) (*Mongodat
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't ping database after connection using uri")
 	}
-	clt := client.Database(databaseName).Collection(collection)
+	clt := client.Database(databaseName).Collection(collectionName)
 	return &Mongodatabase{
 		Person: clt,
 	}, nil
