@@ -203,15 +203,23 @@ func TestSuccessResponce(t *testing.T) {
 }
 
 // func TestInsert(t *testing.T) {
-// 	var p Provider
+// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	defer cancel()
+// 	m, err := mongo.Connect(ctx, "192.168.99.100:27017", "test")
+// 	if err != nil {
+// 		log.Fatalf(`couldn't connect to database: %v`, err)
+// 	}
+// 	c := controller.New(m)
+// 	h := New(c)
+
 // 	tt := []struct {
 // 		name     string
 // 		method   string
 // 		body     []byte
 // 		object   personalData
-// 		provider Provider
-// 		status   int
+// 		provider http.Handler
 // 		c        *Controller
+// 		status   int
 // 		err      string
 // 	}{
 // 		{
@@ -226,7 +234,7 @@ func TestSuccessResponce(t *testing.T) {
 // 				Email:       "",
 // 				YearOfBirth: 1980,
 // 			},
-// 			provider: p,
+// 			provider: h,
 // 			status:   http.StatusCreated,
 // 		},
 // 	}
@@ -245,9 +253,9 @@ func TestSuccessResponce(t *testing.T) {
 // 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
 // 			rec := httptest.NewRecorder()
 // 			tc.c = &Controller{
-// 				CTR: p,
+// 				CTR: tc.provider,
 // 			}
-// 			tc.c.Insert(rec, req)
+// 			tc.provider.Insert(rec, req)
 // 			res := rec.Result()
 // 			defer res.Body.Close()
 // 			if tc.err != "" {
