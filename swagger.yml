@@ -16,7 +16,6 @@ paths:
       tags:
       - person information
       summary: Find all persons information
-      #description: Multiple status values can be provided with comma separated strings
       operationId: All
       responses:
         200:
