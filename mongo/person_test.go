@@ -351,7 +351,7 @@ func TestRemove(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "192.168.99.100:27017", collectionName)
+	m, err := Connect(ctx, "localhost:27017", collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
@@ -483,10 +483,11 @@ func TestUpdate(t *testing.T) {
 			},
 			expectedResponce: 1,
 			ctx:              ctx,
-			err:              "couldnt receive struct: could not convert DocumentID type string to type ObjectID: the provided hex string is not a valid ObjectID",
+			err: "couldnt receive struct:" +
+				"could not convert DocumentID type string to type ObjectID:" +
+				"the provided hex string is not a valid ObjectID",
 		},
 	}
-
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
@@ -503,7 +504,6 @@ func TestUpdate(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err, "could not insert data to database")
-
 			_, err = tc.collection.Remove(tc.ctx, tc.enterT.DocumentID)
 			assert.NoError(t, err, "could not remove document from database")
 		})

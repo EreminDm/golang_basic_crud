@@ -20,7 +20,7 @@ linters-settings:
   lll:
     line-length: 140
   funlen:
-    lines: 80
+    lines: 100
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
 linters:
