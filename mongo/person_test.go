@@ -152,7 +152,9 @@ func TestInsert(t *testing.T) {
 				YearOfBirth: 1234,
 			},
 			ctx: ctx,
-			err: "could not receive data: could not convert DocumentID type string to type ObjectID: the provided hex string is not a valid ObjectID",
+			err: "could not receive data:" +
+				" could not convert DocumentID type string to type ObjectID:" +
+				" the provided hex string is not a valid ObjectID",
 		},
 	}
 
