@@ -278,13 +278,14 @@ func TestOne(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, "192.168.99.100:27017", collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *Mongodatabase
 		expectedT  entity.PersonalData
 		enterT     entity.PersonalData
+		oid        string
 		ctx        context.Context
 		err        string
 	}{
@@ -300,21 +301,22 @@ func TestOne(t *testing.T) {
 				Email:       "test@test.test",
 				YearOfBirth: 1234,
 			},
+			oid: oid,
 			ctx: ctx,
 			err: "",
-		},
-		{
+		}, {
 			name:       "Wrong Select one testing",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
-				DocumentID:  "",
+				DocumentID:  oid,
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
 				Email:       "test@test.test",
 				YearOfBirth: 1234,
 			},
+			oid: "",
 			ctx: ctx,
 			err: "couldn't decode object id from hex err: the provided hex string is not a valid ObjectID",
 		},
@@ -324,7 +326,7 @@ func TestOne(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err = tc.collection.Insert(ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
-			actualSlice, err := tc.collection.One(tc.ctx, tc.enterT.DocumentID)
+			actualSlice, err := tc.collection.One(tc.ctx, tc.oid)
 			if tc.err != "" {
 				assert.Equal(
 					t,
