@@ -30,7 +30,7 @@ func TestConnect(t *testing.T) {
 			err:           "",
 		},
 		{
-			name:          "Mongo wrong connection",
+			name:          "Mongo wrong Ping",
 			context:       ctx,
 			connectionURI: "notlocalhost:27017",
 			dbName:        "test",
