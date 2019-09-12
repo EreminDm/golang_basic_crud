@@ -237,6 +237,8 @@ func TestAll(t *testing.T) {
 					err.Error(),
 					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err.Error()),
 				)
+				_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
+				assert.NoError(t, err, "could not remove document from database")
 				return
 			}
 			assert.NoError(t, err, "could not select data from database")
@@ -258,8 +260,6 @@ func TestOne(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	wrongCTX, cancelCTX := context.WithCancel(context.Background())
-	cancelCTX()
 	m, err := Connect(ctx, "192.168.99.100:27017", collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
@@ -285,47 +285,34 @@ func TestOne(t *testing.T) {
 			ctx: ctx,
 			err: "",
 		},
-		{
-			name:       "Select one with wrong context",
-			collection: m,
-			expectedT:  entity.PersonalData{},
-			enterT: entity.PersonalData{
-				DocumentID:  oid,
-				Name:        "Name",
-				LastName:    "LName",
-				Phone:       "1235486",
-				Email:       "test@test.test",
-				YearOfBirth: 1234,
-			},
-			ctx: wrongCTX,
-			err: "could not find document in database: context canceled",
-		},
 	}
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
+			_, err = tc.collection.Insert(ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
-			actualSlice, err := tc.collection.One(tc.ctx, oid)
+			actualSlice, err := tc.collection.One(tc.ctx, tc.enterT.DocumentID)
 			if tc.err != "" {
 				assert.Equal(
 					t,
 					tc.err,
-					err.Error(),
-					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err.Error()),
+					err,
+					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
 				)
+				_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
+				assert.NoError(t, err, "could not remove document from database")
 				return
 			}
 			assert.NoError(t, err, "could not select data from database")
 
-			assert.Equal(
+			assert.IsType(
 				t,
 				tc.expectedT,
 				actualSlice,
 				fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedT, actualSlice),
 			)
 
-			_, err = tc.collection.Remove(tc.ctx, tc.enterT.DocumentID)
+			_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
 			assert.NoError(t, err, "could not remove document from database")
 		})
 	}
@@ -340,7 +327,7 @@ func TestRemove(t *testing.T) {
 	tt := []struct {
 		name             string
 		collection       *Mongodatabase
-		expectedResponce int
+		expectedResponce int64
 		enterT           entity.PersonalData
 		ctx              context.Context
 		err              string
@@ -380,8 +367,8 @@ func TestRemove(t *testing.T) {
 
 			assert.Equal(
 				t,
-				tc.err,
-				err,
+				tc.expectedResponce,
+				er,
 				fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedResponce, er),
 			)
 
