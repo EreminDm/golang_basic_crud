@@ -22,7 +22,7 @@ type personalData struct {
 }
 
 // receive returns mongo personal data construction.
-func receive(ep *entity.PersonalData) (personalData, error) {
+func receive(ep entity.PersonalData) (personalData, error) {
 
 	// returns ObjectID type from string
 	oid, err := primitive.ObjectIDFromHex(ep.DocumentID)
@@ -62,7 +62,7 @@ func (m *Mongodatabase) One(ctx context.Context, id string) (entity.PersonalData
 }
 
 // Insert is a function which adding data to database.
-func (m *Mongodatabase) Insert(ctx context.Context, document *entity.PersonalData) (entity.PersonalData, error) {
+func (m *Mongodatabase) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 
 	p, err := receive(document)
 	if err != nil {
@@ -125,7 +125,7 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 }
 
 // Update rewrites information in db by user id filtration.
-func (m *Mongodatabase) Update(ctx context.Context, ep *entity.PersonalData) (int64, error) {
+func (m *Mongodatabase) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
 	p, err := receive(ep)
 	if err != nil {
 		return 0, errors.Wrap(err, "couldnt receive struct")

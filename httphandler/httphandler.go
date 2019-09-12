@@ -23,8 +23,8 @@ type Provider interface {
 	One(ctx context.Context, value string) (entity.PersonalData, error)
 	All(ctx context.Context) ([]entity.PersonalData, error)
 	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *entity.PersonalData) (int64, error)
-	Insert(ctx context.Context, document *entity.PersonalData) (entity.PersonalData, error)
+	Update(ctx context.Context, p entity.PersonalData) (int64, error)
+	Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error)
 }
 
 // personalData is personal data filds description.
@@ -45,7 +45,7 @@ func New(c Provider) http.Handler {
 }
 
 // receive returns httphandler package personal data construction.
-func receive(ep *entity.PersonalData) personalData {
+func receive(ep entity.PersonalData) personalData {
 	return personalData{
 		DocumentID:  ep.DocumentID,
 		Name:        ep.Name,
@@ -57,8 +57,8 @@ func receive(ep *entity.PersonalData) personalData {
 }
 
 // transmit returns entity data construction.
-func (p *personalData) transmit() *entity.PersonalData {
-	return &entity.PersonalData{
+func (p *personalData) transmit() entity.PersonalData {
+	return entity.PersonalData{
 		DocumentID:  p.DocumentID,
 		Name:        p.Name,
 		LastName:    p.LastName,
@@ -114,7 +114,7 @@ func (c *Controller) ByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// marshalls data from response.
-	res, err := json.Marshal(receive(&ep))
+	res, err := json.Marshal(receive(ep))
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)
 		return
@@ -141,7 +141,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 
 	// converts data to httphandler layout.
 	for _, ep := range usrs {
-		var epp = &entity.PersonalData{
+		var epp = entity.PersonalData{
 			DocumentID:  ep.DocumentID,
 			Name:        ep.Name,
 			LastName:    ep.LastName,
@@ -193,7 +193,7 @@ func (c *Controller) Insert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	epres := receive(&result)
+	epres := receive(result)
 	res, err := json.Marshal(epres)
 	if err != nil {
 		errRespons(w, http.StatusInternalServerError, err)

@@ -46,7 +46,7 @@ func TestRecive(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Using the variable on range scope `tc` in function literal (scopelint)
-			actualT, err := receive(&tc.enterT)
+			actualT, err := receive(tc.enterT)
 			if tc.err != nil {
 				assert.Equal(
 					t,
@@ -145,7 +145,7 @@ func TestInsert(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			if tc.err != nil {
 				assert.Equal(
 					t,
@@ -195,7 +195,7 @@ func TestAll(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
 			actualSlice, err := tc.collection.All(tc.ctx)
 			if tc.err != nil {
@@ -254,7 +254,7 @@ func TestOne(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
 			actualSlice, err := tc.collection.One(tc.ctx, tc.enterT.DocumentID)
 			if tc.err != nil {
@@ -313,7 +313,7 @@ func TestRemove(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
 			er, err := tc.collection.Remove(tc.ctx, tc.enterT.DocumentID)
 			if tc.err != nil {
@@ -382,9 +382,9 @@ func TestUpdate(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, &tc.enterT)
+			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
-			_, err := tc.collection.Update(tc.ctx, &tc.updateT)
+			_, err := tc.collection.Update(tc.ctx, tc.updateT)
 			if tc.err != nil {
 				assert.Equal(
 					t,

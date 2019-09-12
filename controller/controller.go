@@ -17,8 +17,8 @@ type DBProvider interface {
 	One(ctx context.Context, value string) (entity.PersonalData, error)
 	All(ctx context.Context) ([]entity.PersonalData, error)
 	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p *entity.PersonalData) (int64, error)
-	Insert(ctx context.Context, document *entity.PersonalData) (entity.PersonalData, error)
+	Update(ctx context.Context, p entity.PersonalData) (int64, error)
+	Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error)
 }
 
 // New returns new Personal provider.
@@ -29,7 +29,7 @@ func New(db DBProvider) *Personal {
 }
 
 // Insert adds data to collection.
-func (p *Personal) Insert(ctx context.Context, document *entity.PersonalData) (entity.PersonalData, error) {
+func (p *Personal) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	ep, err := p.DB.Insert(ctx, document)
 	return ep, errors.Wrap(err, "could not insert personal data")
 }
@@ -48,7 +48,7 @@ func (p *Personal) All(ctx context.Context) ([]entity.PersonalData, error) {
 }
 
 // Update changes information in collection.
-func (p *Personal) Update(ctx context.Context, document *entity.PersonalData) (int64, error) {
+func (p *Personal) Update(ctx context.Context, document entity.PersonalData) (int64, error) {
 	count, err := p.DB.Update(ctx, document)
 	return count, errors.Wrap(err, "could not update personal data")
 }
