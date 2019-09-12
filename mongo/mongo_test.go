@@ -3,6 +3,7 @@ package mongo_test
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/EreminDm/golang_basic_crud/mongo"
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,8 @@ import (
 )
 
 func TestConnect(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 	expected := &mongo.Mongodatabase{}
 	tt := []struct {
 		name          string
@@ -20,11 +23,18 @@ func TestConnect(t *testing.T) {
 		err           string
 	}{
 		{
-			name:          "Context TODO",
-			context:       context.TODO(),
+			name:          "Mongo connection",
+			context:       ctx,
 			connectionURI: "localhost:27017",
 			dbName:        "test",
 			err:           "",
+		},
+		{
+			name:          "Mongo wrong connection",
+			context:       ctx,
+			connectionURI: "notlocalhost:27017",
+			dbName:        "test",
+			err:           "couldn't ping database after connection using uri: context deadline exceeded",
 		},
 	}
 	for _, tc := range tt {
@@ -35,8 +45,8 @@ func TestConnect(t *testing.T) {
 				assert.Equal(
 					t,
 					tc.err,
-					err,
-					fmt.Sprintf("expected status Bad Request; got: %v", err),
+					err.Error(),
+					fmt.Sprintf("expected error is not equals; want: %v, got: %v", tc.err, err.Error()),
 				)
 				return
 			}
