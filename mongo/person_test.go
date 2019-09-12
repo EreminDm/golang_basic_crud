@@ -117,6 +117,8 @@ func TestInsert(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	wrongCTX, wCanel := context.WithCancel(context.Background())
+	wCanel()
 	m, err := Connect(ctx, "localhost:27017", collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
@@ -155,6 +157,20 @@ func TestInsert(t *testing.T) {
 			err: "could not receive data:" +
 				" could not convert DocumentID type string to type ObjectID:" +
 				" the provided hex string is not a valid ObjectID",
+		},
+		{
+			name:       "Wrong Insert canceled context",
+			collection: m,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			ctx: wrongCTX,
+			err: "could not add document(s) in database: context canceled",
 		},
 	}
 
@@ -348,6 +364,21 @@ func TestRemove(t *testing.T) {
 			},
 			ctx: ctx,
 			err: "",
+		},
+		{
+			name:             "Fail remove document from database",
+			collection:       m,
+			expectedResponce: 1,
+			enterT: entity.PersonalData{
+				DocumentID:  "",
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			ctx: ctx,
+			err: "couldn't decode object id from hex err: the provided hex string is not a valid ObjectID",
 		},
 	}
 	for _, tc := range tt {
