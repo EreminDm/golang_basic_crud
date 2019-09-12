@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewController(t *testing.T) {
+func TestNewHandler(t *testing.T) {
 	var p Provider
 	var expected mux.Router
 
@@ -82,7 +82,7 @@ func TestTransmit(t *testing.T) {
 	tt := []struct {
 		name      string
 		enterT    personalData
-		expectedT *entity.PersonalData
+		expectedT entity.PersonalData
 		err       error
 	}{
 		{
@@ -95,7 +95,7 @@ func TestTransmit(t *testing.T) {
 				Email:       "test@test.test",
 				YearOfBirth: 1234,
 			},
-			expectedT: &entity.PersonalData{
+			expectedT: entity.PersonalData{
 				DocumentID:  "ObjectID",
 				Name:        "Name",
 				LastName:    "LName",
@@ -202,25 +202,63 @@ func TestSuccessResponce(t *testing.T) {
 	}
 }
 
+// type controllerMockedObject struct {
+// 	mock.Mock
+// }
+
+// func (m *controllerMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
+// 	fmt.Println("Mocked insert function")
+// 	fmt.Printf("Document passed in: %v\n", document)
+// 	args := m.Called(ctx, document)
+// 	return args.Get(0).(entity.PersonalData), args.Error(1)
+// }
+
+// func (m *controllerMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
+// 	fmt.Println("Mocked one function")
+// 	fmt.Printf("ID passed in: %s\n", id)
+// 	args := m.Called(ctx, id)
+// 	return args.Get(0).(entity.PersonalData), args.Error(1)
+// }
+
+// // All returns an array of personal information.
+// func (m *controllerMockedObject) All(ctx context.Context) ([]entity.PersonalData, error) {
+// 	fmt.Println("Mocked all function")
+// 	args := m.Called(ctx)
+// 	return args.Get(0).([]entity.PersonalData), args.Error(1)
+// }
+
+// // Update changes information in collection.
+// func (m *controllerMockedObject) Update(ctx context.Context, document entity.PersonalData) (int64, error) {
+// 	fmt.Println("Mocked update function")
+// 	fmt.Printf("Document passed in: %v\n", document)
+// 	args := m.Called(ctx, document)
+// 	return int64(args.Int(0)), args.Error(1)
+// }
+
+// // Remove deletes information from collection.
+// func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, error) {
+// 	fmt.Println("Mocked remove function")
+// 	fmt.Printf("ID passed in: %s\n", id)
+// 	args := m.Called(ctx, id)
+// 	return int64(1), args.Error(1)
+// }
+
 // func TestInsert(t *testing.T) {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	defer cancel()
-// 	m, err := mongo.Connect(ctx, "192.168.99.100:27017", "test")
-// 	if err != nil {
-// 		log.Fatalf(`couldn't connect to database: %v`, err)
+// 	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+// 	// defer cancel()
+// 	ctr := new(controllerMockedObject)
+// 	c := &Controller{
+// 		CTR: ctr,
 // 	}
-// 	c := controller.New(m)
-// 	h := New(c)
 
 // 	tt := []struct {
-// 		name     string
-// 		method   string
-// 		body     []byte
-// 		object   personalData
-// 		provider http.Handler
-// 		c        *Controller
-// 		status   int
-// 		err      string
+// 		name   string
+// 		method string
+// 		body   []byte
+// 		object personalData
+// 		c      *Controller
+// 		status int
+// 		err    string
 // 	}{
 // 		{
 // 			name:   "post request",
@@ -234,8 +272,7 @@ func TestSuccessResponce(t *testing.T) {
 // 				Email:       "",
 // 				YearOfBirth: 1980,
 // 			},
-// 			provider: h,
-// 			status:   http.StatusCreated,
+// 			status: http.StatusCreated,
 // 		},
 // 	}
 
@@ -252,10 +289,10 @@ func TestSuccessResponce(t *testing.T) {
 // 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
 // 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
 // 			rec := httptest.NewRecorder()
-// 			tc.c = &Controller{
-// 				CTR: tc.provider,
-// 			}
-// 			tc.provider.Insert(rec, req)
+// 			ctr.On("Insert", req.Context(), tc.object.transmit()).Return()
+// 			//ctr.On("Insert", rec, req).Return()
+// 			c.Insert(rec, req)
+// 			//	c.Insert(ctx, tc.body)
 // 			res := rec.Result()
 // 			defer res.Body.Close()
 // 			if tc.err != "" {
