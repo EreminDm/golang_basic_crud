@@ -36,6 +36,14 @@ func TestConnect(t *testing.T) {
 			dbName:        "test",
 			err:           "couldn't ping database after connection using uri: context deadline exceeded",
 		},
+		{
+			name:          "Mongo wrong Connection",
+			context:       ctx,
+			connectionURI: "//notlocalhost:27017",
+			dbName:        "test",
+			err: "couldn't connect to database using uri:" +
+				" error parsing uri: must have at least 1 host",
+		},
 	}
 	for _, tc := range tt {
 		tc := tc
