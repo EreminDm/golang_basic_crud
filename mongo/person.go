@@ -128,7 +128,7 @@ func (m *Mongodatabase) Remove(ctx context.Context, id string) (int64, error) {
 func (m *Mongodatabase) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
 	p, err := receive(ep)
 	if err != nil {
-		return 0, errors.Wrap(err, "couldnt receive struct")
+		return 0, errors.Wrap(err, "could not receive struct")
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: p.DocumentID}}
 	update := bson.D{primitive.E{

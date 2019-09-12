@@ -11,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const dbURItest string = "localhost:27017"
+
 func TestRecive(t *testing.T) {
 	oid := primitive.NewObjectID()
 
@@ -119,7 +121,7 @@ func TestInsert(t *testing.T) {
 	defer cancel()
 	wrongCTX, wCanel := context.WithCancel(context.Background())
 	wCanel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, dbURItest, collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -201,7 +203,7 @@ func TestAll(t *testing.T) {
 	wrongCTX, cancelCTX := context.WithCancel(context.Background())
 	cancelCTX()
 
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, dbURItest, collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -278,7 +280,7 @@ func TestOne(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, dbURItest, collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -353,7 +355,7 @@ func TestRemove(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, dbURItest, collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
@@ -430,7 +432,7 @@ func TestUpdate(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
+	m, err := Connect(ctx, dbURItest, collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
@@ -485,9 +487,9 @@ func TestUpdate(t *testing.T) {
 			},
 			expectedResponce: 1,
 			ctx:              ctx,
-			err: "couldnt receive struct:" +
-				"could not convert DocumentID type string to type ObjectID:" +
-				"the provided hex string is not a valid ObjectID",
+			err: "could not receive struct:" +
+				" could not convert DocumentID type string to type ObjectID:" +
+				" the provided hex string is not a valid ObjectID",
 		},
 	}
 	for _, tc := range tt {
