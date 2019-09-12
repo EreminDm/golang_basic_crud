@@ -303,72 +303,10 @@ func TestOne(t *testing.T) {
 			ctx: ctx,
 			err: "",
 		},
-	}
-	for _, tc := range tt {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(ctx, tc.enterT)
-			assert.NoError(t, err, "could not insert data to database")
-			actualSlice, err := tc.collection.One(tc.ctx, tc.enterT.DocumentID)
-			if tc.err != "" {
-				assert.Equal(
-					t,
-					tc.err,
-					err,
-					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err),
-				)
-				_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
-				assert.NoError(t, err, "could not remove document from database")
-				return
-			}
-			assert.NoError(t, err, "could not select data from database")
-
-			assert.IsType(
-				t,
-				tc.expectedT,
-				actualSlice,
-				fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedT, actualSlice),
-			)
-
-			_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
-			assert.NoError(t, err, "could not remove document from database")
-		})
-	}
-}
-
-func TestRemove(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	m, err := Connect(ctx, "localhost:27017", collectionName)
-	assert.NoError(t, err, "could not connect to db")
-	tt := []struct {
-		name             string
-		collection       *Mongodatabase
-		expectedResponce int64
-		enterT           entity.PersonalData
-		ctx              context.Context
-		err              string
-	}{
 		{
-			name:             "Remove document from database",
-			collection:       m,
-			expectedResponce: 1,
-			enterT: entity.PersonalData{
-				DocumentID:  oid,
-				Name:        "Name",
-				LastName:    "LName",
-				Phone:       "1235486",
-				Email:       "test@test.test",
-				YearOfBirth: 1234,
-			},
-			ctx: ctx,
-			err: "",
-		},
-		{
-			name:             "Fail remove document from database",
-			collection:       m,
-			expectedResponce: 1,
+			name:       "Wrong Select one testing",
+			collection: m,
+			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
 				DocumentID:  "",
 				Name:        "Name",
@@ -384,9 +322,84 @@ func TestRemove(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			_, err = tc.collection.Insert(ctx, tc.enterT)
+			assert.NoError(t, err, "could not insert data to database")
+			actualSlice, err := tc.collection.One(tc.ctx, tc.enterT.DocumentID)
+			if tc.err != "" {
+				assert.Equal(
+					t,
+					tc.err,
+					err.Error(),
+					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err.Error()),
+				)
+				return
+			}
+			assert.NoError(t, err, "could not select data from database")
+			assert.IsType(
+				t,
+				tc.expectedT,
+				actualSlice,
+				fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedT, actualSlice),
+			)
+			_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
+			assert.NoError(t, err, "could not remove document from database")
+		})
+	}
+}
+
+func TestRemove(t *testing.T) {
+	oid := primitive.NewObjectID().Hex()
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	m, err := Connect(ctx, "192.168.99.100:27017", collectionName)
+	assert.NoError(t, err, "could not connect to db")
+	tt := []struct {
+		name             string
+		collection       *Mongodatabase
+		expectedResponce int64
+		enterT           entity.PersonalData
+		removingOID      string
+		ctx              context.Context
+		err              string
+	}{
+		{
+			name:             "Remove document from database",
+			collection:       m,
+			expectedResponce: 1,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			removingOID: oid,
+			ctx:         ctx,
+			err:         "",
+		}, {
+			name:             "Fail remove document from database",
+			collection:       m,
+			expectedResponce: 1,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			removingOID: "",
+			ctx:         ctx,
+			err:         "couldn't decode object id from hex err: the provided hex string is not a valid ObjectID",
+		},
+	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
 			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
-			er, err := tc.collection.Remove(tc.ctx, tc.enterT.DocumentID)
+			er, err := tc.collection.Remove(tc.ctx, tc.removingOID)
 			if tc.err != "" {
 				assert.Equal(
 					t,
@@ -448,6 +461,29 @@ func TestUpdate(t *testing.T) {
 			expectedResponce: 1,
 			ctx:              ctx,
 			err:              "",
+		},
+		{
+			name:       "Update Document in database",
+			collection: m,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1234,
+			},
+			updateT: entity.PersonalData{
+				DocumentID:  "",
+				Name:        "FirstName",
+				LastName:    "LastName",
+				Phone:       "999999999",
+				Email:       "test@test.test",
+				YearOfBirth: 1999,
+			},
+			expectedResponce: 1,
+			ctx:              ctx,
+			err:              "couldnt receive struct: could not convert DocumentID type string to type ObjectID: the provided hex string is not a valid ObjectID",
 		},
 	}
 
