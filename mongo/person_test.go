@@ -278,7 +278,7 @@ func TestOne(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, "192.168.99.100:27017", collectionName)
+	m, err := Connect(ctx, "localhost:27017", collectionName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
