@@ -67,7 +67,7 @@ func TestReceive(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Using the variable on range scope `tc` in function literal (scopelint)
-			actualT := receive(&tc.enterT)
+			actualT := receive(tc.enterT)
 			assert.Equal(
 				t,
 				tc.expectedT,
