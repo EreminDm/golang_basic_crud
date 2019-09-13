@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -246,6 +247,7 @@ func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, 
 	args := m.Called(ctx, id)
 	return int64(1), args.Error(1)
 }
+
 func TestInsert(t *testing.T) {
 	ctr := new(controllerMockedObject)
 	c := New(ctr)
@@ -255,11 +257,12 @@ func TestInsert(t *testing.T) {
 		body           []byte
 		object         personalData
 		expectedObject entity.PersonalData
+		expectedError  error
 		status         int
 		err            string
 	}{
 		{
-			name:   "post request",
+			name:   "Success request",
 			method: "POST",
 			body:   nil,
 			object: personalData{
@@ -270,7 +273,17 @@ func TestInsert(t *testing.T) {
 				Email:       "",
 				YearOfBirth: 1980,
 			},
-			status: 201,
+			expectedError: nil,
+			status:        201,
+		},
+		{
+			name:          "Wrong request",
+			method:        "POST",
+			body:          []byte("e"),
+			object:        personalData{},
+			expectedError: nil,
+			status:        400,
+			err:           "invalid character 'e' looking for beginning of value",
 		},
 	}
 
@@ -279,43 +292,103 @@ func TestInsert(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			var err error
-			tc.body, err = json.Marshal(tc.object)
-			assert.NoError(
-				t,
-				err,
-				fmt.Sprintf("couldn't marshal request body: %v", err),
-			)
+			if tc.body == nil {
+				tc.body, err = json.Marshal(tc.object)
+				assert.NoError(
+					t,
+					err,
+					fmt.Sprintf("couldn't marshal request body: %v", err),
+				)
+			}
 
 			req, err := http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
-			req = mux.SetURLVars(req, nil)
 			rec := httptest.NewRecorder()
 
-			ctr.On("Insert", req.Context(), tc.object.transmit()).Return(tc.expectedObject, tc.err).Once()
+			ctr.On("Insert", mock.Anything, tc.object.transmit()).Return(tc.expectedObject, tc.expectedError).Once()
 			c.ServeHTTP(rec, req)
 			res := rec.Result()
 			defer res.Body.Close()
 
-			//0: FAIL:  (*context.valueCtx=context.Background.WithValue(type mux.contextKey,
-			//val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
-
-			// != (*context.emptyCtx=context.Background) - actual ctx
-
-			// (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).
-			//WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
-			//
-			// != (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>))
-
-			u, _ := res.Location()
+			if tc.err != "" {
+				b, err := ioutil.ReadAll(res.Body)
+				assert.NoError(t, err, fmt.Sprintf("could not read responce body: %v", err))
+				bString := string(b)
+				assert.Equal(t,
+					tc.err,
+					bString,
+					"not equals",
+				)
+			}
 
 			assert.Equal(t,
 				tc.status,
 				res.StatusCode,
-				fmt.Sprintf("expected status %v; got %v, %s", tc.status, res.StatusCode, u.String()),
+				fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode),
 			)
 		})
 	}
 }
+
+// func TestInsert(t *testing.T) {
+// 	ctr := new(controllerMockedObject)
+// 	c := New(ctr)
+// 	tt := []struct {
+// 		name           string
+// 		method         string
+// 		body           []byte
+// 		object         personalData
+// 		expectedObject entity.PersonalData
+// 		expectedError  error
+// 		status         int
+// 		err            string
+// 	}{
+// 		{
+// 			name:   "post request",
+// 			method: "POST",
+// 			body:   nil,
+// 			object: personalData{
+// 				DocumentID:  "",
+// 				Name:        "firstName",
+// 				LastName:    "secondName",
+// 				Phone:       "",
+// 				Email:       "",
+// 				YearOfBirth: 1980,
+// 			},
+// 			expectedError: nil,
+// 			status:        201,
+// 		},
+// 	}
+
+// 	for _, tc := range tt {
+// 		tc := tc
+// 		t.Run(tc.name, func(t *testing.T) {
+
+// 			var err error
+// 			tc.body, err = json.Marshal(tc.object)
+// 			assert.NoError(
+// 				t,
+// 				err,
+// 				fmt.Sprintf("couldn't marshal request body: %v", err),
+// 			)
+
+// 			req, err := http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
+// 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+// 			rec := httptest.NewRecorder()
+
+// 			ctr.On("Insert", mock.Anything, tc.object.transmit()).Return(tc.expectedObject, tc.expectedError).Once()
+// 			c.ServeHTTP(rec, req)
+// 			res := rec.Result()
+// 			defer res.Body.Close()
+
+// 			assert.Equal(t,
+// 				tc.status,
+// 				res.StatusCode,
+// 				fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode),
+// 			)
+// 		})
+// 	}
+// }
 
 // func TestList(t *testing.T) {
 // 	var expectedObject *network.PersonalData
