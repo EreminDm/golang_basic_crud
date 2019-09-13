@@ -1,6 +1,9 @@
 package httphandler
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestNewHandler(t *testing.T) {
@@ -202,112 +206,110 @@ func TestSuccessResponce(t *testing.T) {
 	}
 }
 
-// type controllerMockedObject struct {
-// 	mock.Mock
-// }
+type controllerMockedObject struct {
+	mock.Mock
+}
 
-// func (m *controllerMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
-// 	fmt.Println("Mocked insert function")
-// 	fmt.Printf("Document passed in: %v\n", document)
-// 	args := m.Called(ctx, document)
-// 	return args.Get(0).(entity.PersonalData), args.Error(1)
-// }
+func (m *controllerMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
+	fmt.Println("Mocked insert function")
+	fmt.Printf("Document passed in: %v\n", document)
+	args := m.Called(ctx, document)
+	return args.Get(0).(entity.PersonalData), args.Error(1)
+}
 
-// func (m *controllerMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
-// 	fmt.Println("Mocked one function")
-// 	fmt.Printf("ID passed in: %s\n", id)
-// 	args := m.Called(ctx, id)
-// 	return args.Get(0).(entity.PersonalData), args.Error(1)
-// }
+func (m *controllerMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
+	fmt.Println("Mocked one function")
+	fmt.Printf("ID passed in: %s\n", id)
+	args := m.Called(ctx, id)
+	return args.Get(0).(entity.PersonalData), args.Error(1)
+}
 
-// // All returns an array of personal information.
-// func (m *controllerMockedObject) All(ctx context.Context) ([]entity.PersonalData, error) {
-// 	fmt.Println("Mocked all function")
-// 	args := m.Called(ctx)
-// 	return args.Get(0).([]entity.PersonalData), args.Error(1)
-// }
+// All returns an array of personal information.
+func (m *controllerMockedObject) All(ctx context.Context) ([]entity.PersonalData, error) {
+	fmt.Println("Mocked all function")
+	args := m.Called(ctx)
+	return args.Get(0).([]entity.PersonalData), args.Error(1)
+}
 
-// // Update changes information in collection.
-// func (m *controllerMockedObject) Update(ctx context.Context, document entity.PersonalData) (int64, error) {
-// 	fmt.Println("Mocked update function")
-// 	fmt.Printf("Document passed in: %v\n", document)
-// 	args := m.Called(ctx, document)
-// 	return int64(args.Int(0)), args.Error(1)
-// }
+// Update changes information in collection.
+func (m *controllerMockedObject) Update(ctx context.Context, document entity.PersonalData) (int64, error) {
+	fmt.Println("Mocked update function")
+	fmt.Printf("Document passed in: %v\n", document)
+	args := m.Called(ctx, document)
+	return int64(args.Int(0)), args.Error(1)
+}
 
-// // Remove deletes information from collection.
-// func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, error) {
-// 	fmt.Println("Mocked remove function")
-// 	fmt.Printf("ID passed in: %s\n", id)
-// 	args := m.Called(ctx, id)
-// 	return int64(1), args.Error(1)
-// }
+// Remove deletes information from collection.
+func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, error) {
+	fmt.Println("Mocked remove function")
+	fmt.Printf("ID passed in: %s\n", id)
+	args := m.Called(ctx, id)
+	return int64(1), args.Error(1)
+}
+func TestInsert(t *testing.T) {
+	ctr := new(controllerMockedObject)
+	c := New(ctr)
+	tt := []struct {
+		name           string
+		method         string
+		body           []byte
+		object         personalData
+		expectedObject entity.PersonalData
+		errType        error
+		c              *Controller
+		status         int
+		err            string
+	}{
+		{
+			name:   "post request",
+			method: "POST",
+			body:   nil,
+			object: personalData{
+				DocumentID:  "",
+				Name:        "firstName",
+				LastName:    "secondName",
+				Phone:       "",
+				Email:       "",
+				YearOfBirth: 1980,
+			},
+			status: 201,
+		},
+	}
 
-// func TestInsert(t *testing.T) {
-// 	// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-// 	// defer cancel()
-// 	ctr := new(controllerMockedObject)
-// 	c := &Controller{
-// 		CTR: ctr,
-// 	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
 
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		body   []byte
-// 		object personalData
-// 		c      *Controller
-// 		status int
-// 		err    string
-// 	}{
-// 		{
-// 			name:   "post request",
-// 			method: "POST",
-// 			body:   nil,
-// 			object: personalData{
-// 				DocumentID:  "",
-// 				Name:        "firstName",
-// 				LastName:    "secondName",
-// 				Phone:       "",
-// 				Email:       "",
-// 				YearOfBirth: 1980,
-// 			},
-// 			status: http.StatusCreated,
-// 		},
-// 	}
+			var err error
+			tc.body, err = json.Marshal(tc.object)
+			assert.NoError(
+				t,
+				err,
+				fmt.Sprintf("couldn't marshal request body: %v", err),
+			)
 
-// 	for _, tc := range tt {
-// 		tc := tc
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			var err error
-// 			tc.body, err = json.Marshal(tc.object)
-// 			assert.NoError(
-// 				t,
-// 				err,
-// 				fmt.Sprintf("couldn't marshal request body: %v", err),
-// 			)
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
-// 			rec := httptest.NewRecorder()
-// 			ctr.On("Insert", req.Context(), tc.object.transmit()).Return()
-// 			//ctr.On("Insert", rec, req).Return()
-// 			c.Insert(rec, req)
-// 			//	c.Insert(ctx, tc.body)
-// 			res := rec.Result()
-// 			defer res.Body.Close()
-// 			if tc.err != "" {
-// 				assert.Equal(
-// 					t,
-// 					http.StatusBadRequest,
-// 					res.StatusCode,
-// 					fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
-// 				)
-// 				return
-// 			}
-// 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
-// 		})
-// 	}
-// }
+			req, err := http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
+			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+			req = mux.SetURLVars(req, nil)
+			rec := httptest.NewRecorder()
+
+			ctr.On("Insert", req.Context(), tc.object.transmit()).Return(tc.expectedObject, tc.err).Once()
+			c.ServeHTTP(rec, req)
+			res := rec.Result()
+			defer res.Body.Close()
+
+			//0: FAIL:  (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+			// != (*context.emptyCtx=context.Background) - actual ctx
+
+			// (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+			// != (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>))
+
+			u, _ := res.Location()
+
+			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v, %s", tc.status, res.StatusCode, u.String()))
+		})
+	}
+}
 
 // func TestList(t *testing.T) {
 // 	var expectedObject *network.PersonalData
