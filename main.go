@@ -48,7 +48,7 @@ func envf() (string, string) {
 	flag.StringVar(
 		&conn,
 		"connectURI",
-		"192.168.99.100:27017",
+		"localhost:27017",
 		"-connectURI flag, example: -connectURI=localhost:27017",
 	)
 	flag.StringVar(
