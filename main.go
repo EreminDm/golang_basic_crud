@@ -19,23 +19,18 @@ func main() {
 	// connURI = "192.168.99.100:27017",
 	// dbName = "information".
 	connURI, dbName := envf()
-
 	// create context for db connection.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	// returns mongo collection.
 	m, err := mongo.Connect(ctx, connURI, dbName)
 	if err != nil {
 		log.Fatalf(`couldn't connect to database: %v`, err)
 	}
-
 	// returns controller provider.
 	c := controller.New(m)
-
 	// returns handler provider.
 	h := httphandler.New(c)
-
 	// port environment define to 8000.
 	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", h))
 }
