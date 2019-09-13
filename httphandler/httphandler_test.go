@@ -318,7 +318,7 @@ func TestInsert(t *testing.T) {
 
 			if tc.err != "" {
 				b, err := ioutil.ReadAll(res.Body)
-				assert.NoError(t, err, fmt.Sprintf("could not read responce body: %v", err))
+				assert.NoError(t, err, fmt.Sprintf("could not read response body: %v", err))
 				bString := string(b)
 				assert.Equal(t,
 					tc.err,
@@ -340,14 +340,13 @@ func TestUpdate(t *testing.T) {
 	ctr := new(controllerMockedObject)
 	c := New(ctr)
 	tt := []struct {
-		name           string
-		method         string
-		body           []byte
-		object         personalData
-		expectedObject entity.PersonalData
-		expectedError  error
-		status         int
-		err            string
+		name          string
+		method        string
+		body          []byte
+		object        personalData
+		expectedError error
+		status        int
+		err           string
 	}{
 		{
 			name:   "Success request",
@@ -400,7 +399,7 @@ func TestUpdate(t *testing.T) {
 
 			if tc.err != "" {
 				b, err := ioutil.ReadAll(res.Body)
-				assert.NoError(t, err, fmt.Sprintf("could not read responce body: %v", err))
+				assert.NoError(t, err, fmt.Sprintf("could not read response body: %v", err))
 				bString := string(b)
 				assert.Equal(t,
 					tc.err,
