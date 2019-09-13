@@ -255,8 +255,6 @@ func TestInsert(t *testing.T) {
 		body           []byte
 		object         personalData
 		expectedObject entity.PersonalData
-		errType        error
-		c              *Controller
 		status         int
 		err            string
 	}{
@@ -298,15 +296,23 @@ func TestInsert(t *testing.T) {
 			res := rec.Result()
 			defer res.Body.Close()
 
-			//0: FAIL:  (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+			//0: FAIL:  (*context.valueCtx=context.Background.WithValue(type mux.contextKey,
+			//val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+
 			// != (*context.emptyCtx=context.Background) - actual ctx
 
-			// (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+			// (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>).
+			//WithValue(type mux.contextKey, val <not Stringer>).WithValue(type mux.contextKey, val <not Stringer>))
+			//
 			// != (*context.valueCtx=context.Background.WithValue(type mux.contextKey, val <not Stringer>))
 
 			u, _ := res.Location()
 
-			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v, %s", tc.status, res.StatusCode, u.String()))
+			assert.Equal(t,
+				tc.status,
+				res.StatusCode,
+				fmt.Sprintf("expected status %v; got %v, %s", tc.status, res.StatusCode, u.String()),
+			)
 		})
 	}
 }
