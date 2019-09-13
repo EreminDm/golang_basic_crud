@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,6 +12,12 @@ func TestEnv(t *testing.T) {
 	conn, db := envf()
 	assert.Equal(t, "localhost:27017", conn, "Expected is not equals to actual, got %s", conn)
 	assert.Equal(t, "information", db, "Expected is not equals to actual, got %s", db)
+}
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+	fmt.Print("Code is", code)
+	os.Exit(code)
 }
 
 // func TestMain(t *testing.T) {
