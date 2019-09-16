@@ -251,5 +251,5 @@ func (c *Controller) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// makes response to API client.
-	successResponce(w, http.StatusCreated, fmt.Sprintf("deleted %v document(s) successfully", result))
+	successResponce(w, http.StatusOK, fmt.Sprintf("deleted %v document(s) successfully", result))
 }

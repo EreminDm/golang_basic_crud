@@ -11,10 +11,12 @@ import (
 	"testing"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
+	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestNewHandler(t *testing.T) {
@@ -418,216 +420,173 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-// func TestList(t *testing.T) {
-// 	var expectedObject *network.PersonalData
+func TestList(t *testing.T) {
+	var expectedObject []entity.PersonalData
+	ctr := new(controllerMockedObject)
+	c := New(ctr)
+	server := httptest.NewServer(c)
+	defer server.Close()
+	tt := []struct {
+		name          string
+		method        string
+		schema        string
+		body          []byte
+		object        personalData
+		status        int
+		expectedError error
+	}{
+		{name: "get request",
+			method: "GET",
+			schema: `{
+				"type":"array",
+				"items":{
+					"type":"object",
+					"properties": {
+						"documentID":{"type":"string"},
+						"name":{"type":"string"},
+						"lastName":{"type":"string"},
+						"phone":{"type":"string"},
+						"email":{"type":"string"},
+						"yearOfBirth":{"type":"integer"}
+					},
+					"required": ["name", "description"]
+				}	 
+		 }
+		 `,
+			body: nil,
+			object: personalData{
+				DocumentID:  "",
+				Name:        "firstName",
+				LastName:    "secondName",
+				Phone:       "",
+				Email:       "",
+				YearOfBirth: 1980,
+			},
+			status: http.StatusOK,
+		},
+	}
 
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		body   []byte
-// 		status int
-// 		err    string
-// 	}{
-// 		{name: "get request", method: "GET", body: nil, status: http.StatusOK},
-// 	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// create httpexpect instance
+			ctr.On("All", mock.Anything).Return(expectedObject, tc.expectedError)
+			e := httpexpect.New(t, server.URL)
+			e.GET("/").
+				Expect().
+				Status(http.StatusOK).JSON().Array().Empty()
 
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+			repos := e.GET("/").
+				Expect().Status(http.StatusOK).JSON().Array()
+			repos.Schema(tc.schema)
 
-// 			rec := httptest.NewRecorder()
-// 			network.List(rec, req)
+		})
+	}
+}
 
-// 			res := rec.Result()
-// 			defer res.Body.Close()
+func TestByID(t *testing.T) {
+	var expectedObject entity.PersonalData
+	ctr := new(controllerMockedObject)
+	c := New(ctr)
+	server := httptest.NewServer(c)
+	defer server.Close()
+	oid := primitive.NewObjectID().Hex()
 
-// 			body, err := ioutil.ReadAll(res.Body)
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't read response body: %v", err))
+	tt := []struct {
+		name          string
+		schema        string
+		param         string
+		status        int
+		expectedError error
+		err           string
+	}{
+		{
+			name: "get request by id",
+			schema: `{
+			"type":"object",
+					"properties": {
+						"documentID":{"type":"string"},
+						"name":{"type":"string"},
+						"lastName":{"type":"string"},
+						"phone":{"type":"string"},
+						"email":{"type":"string"},
+						"yearOfBirth":{"type":"integer"}
+					},
+					"required": ["name", "description"]
+		}`,
 
-// 			if tc.err != "" {
-// 				assert.Equal(
-// t,
-// http.StatusBadRequest,
-// res.StatusCode,
-//  fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
-// )
-// 				assert.Equal(
-// t,
-//  tc.err,
-//   string(bytes.TrimSpace(body)),
-//    fmt.Sprintf("expected message %q; got %q", tc.err, string(bytes.TrimSpace(body))),
-// )
-// 				return
-// 			}
-// 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
-// 			assert.NoError(t, json.Unmarshal(body, &expectedObject), err.Error())
-// 		})
-// 	}
-// }
+			param:  oid,
+			status: http.StatusOK,
+			err:    "",
+		},
+		{
+			name: "WRONG request by id",
+			schema: `{
+				
+			}`,
+			param:         "oid",
+			status:        http.StatusInternalServerError,
+			expectedError: errors.New("404 Not Found"),
+			err:           "404 Not Found",
+		},
+	}
 
-// func TestShowListByID(t *testing.T) {
-// 	var expectedObject *network.PersonalData
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		param  string
-// 		value  string
-// 		body   []byte
-// 		status int
-// 		err    string
-// 	}{
-// 		{name: "get request by id", method: "GET", param: "id", value: "1", body: nil, status: http.StatusOK},
-// 	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			ctr.On("One", mock.Anything, tc.param).Return(expectedObject, tc.expectedError)
+			e := httpexpect.New(t, server.URL)
+			if tc.err != "" {
+				res := e.GET("/" + tc.param).
+					Expect().
+					Status(tc.status)
+				res.Body().Equal(tc.err)
+				return
+			}
+			e.GET("/" + tc.param).
+				Expect().
+				Status(tc.status)
+		})
+	}
+}
 
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+func TestRemove(t *testing.T) {
+	ctr := new(controllerMockedObject)
+	c := New(ctr)
+	server := httptest.NewServer(c)
+	defer server.Close()
+	oid := primitive.NewObjectID().Hex()
+	tt := []struct {
+		name          string
+		param         string
+		value         int64
+		status        int
+		expectedError error
+		err           string
+	}{
+		{name: "Sucsecc deleting", param: oid, value: 1, status: http.StatusOK, expectedError: nil, err: ""},
+		{
+			name: "False deleting", param: "oid", value: 0, status: http.StatusInternalServerError,
+			expectedError: errors.New("404 Not Found"), err: "404 Not Found",
+		},
+	}
 
-// 			// add url params to request.
-// 			q := req.URL.Query()
-// 			q.Add(tc.param, tc.value)
-// 			req.URL.RawQuery = q.Encode()
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			ctr.On("Remove", mock.Anything, tc.param).Return(tc.value, tc.expectedError)
+			e := httpexpect.New(t, server.URL)
+			if tc.err != "" {
+				res := e.DELETE("/" + tc.param).
+					Expect().Status(tc.status)
+				res.Body().Equal(tc.err)
+				//assert.Equal(t, tc.err, res.Body(), "not equals, want %v, got %v", tc.err, res.Body().Equal())
+				return
+			}
+			e.DELETE("/" + tc.param).
+				Expect().
+				Status(tc.status)
 
-// 			rec := httptest.NewRecorder()
-// 			network.ByID(rec, req)
-
-// 			res := rec.Result()
-// 			defer res.Body.Close()
-
-// 			body, err := ioutil.ReadAll(res.Body)
-// 			assert.NoError(t, err, fmt.Sprintf("couldn't read response body: %v", err))
-
-// 			if tc.err != "" {
-// 				assert.Equal(t,
-//  http.StatusBadRequest,
-//   res.StatusCode,
-//    fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
-// )
-// 				assert.Equal(
-// 	t,
-// 	 tc.err, string(bytes.TrimSpace(body)),
-//  fmt.Sprintf(
-// 	 "expected message %q; got %q",
-// 	  tc.err, string(bytes.TrimSpace(body)),
-// 	)
-// )
-// 				return
-// 			}
-
-// 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
-// 			assert.NoError(t, json.Unmarshal(body, &expectedObject), err.Error())
-
-// 		})
-// 	}
-// }
-
-// func TestUpdate(t *testing.T) {
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		body   []byte
-// 		status int
-// 		err    string
-// 	}{
-// 		{name: "update request", method: "PUT", body: nil, status: http.StatusOK},
-// 	}
-
-// 	// updateO which will used in request body.
-// 	updateO := &network.PersonalData{
-// DocumentID: "",
-//  Name: "firstName",
-//   LastName: "secondName",
-//    Phone: "12345678",
-//    Email: "test@test.com",
-// 	YearOfBirth: 1980,
-// }
-
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			var err error
-// 			tc.body, err = json.Marshal(updateO)
-// 			assert.NoError(
-// t,
-//  err,
-//   fmt.Sprintf("couldn't marshal request body: %v", err),
-// )
-
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(
-// t,
-//  err,
-//   fmt.Sprintf("couldn't create requset: %v", err),
-// )
-
-// 			rec := httptest.NewRecorder()
-// 			network.Insert(rec, req)
-
-// 			res := rec.Result()
-// 			defer res.Body.Close()
-
-// 			if tc.err != "" {
-// 				assert.Equal(
-// t,
-//  http.StatusBadRequest,
-//   res.StatusCode,
-//   fmt.Sprintf("expected status Bad Request; got: %v", res.StatusCode),
-// )
-// 				return
-// 			}
-// 			assert.Equal(
-// t,
-// tc.status,
-//  res.StatusCode,
-//   fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode),
-// )
-// 		})
-// 	}
-// }
-
-// func TestRemove(t *testing.T) {
-// 	tt := []struct {
-// 		name   string
-// 		method string
-// 		param  string
-// 		value  string
-// 		body   []byte
-// 		status int
-// 		err    string
-// 	}{
-// 		{name: "delete data by id", method: "DELETE", param: "id", value: "1", body: nil, status: http.StatusOK},
-// 	}
-
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			req, err := http.NewRequest(tc.method, "localhost:8000/", bytes.NewReader(tc.body))
-// 			assert.NoError(
-// t,
-//  err,
-//   fmt.Sprintf("couldn't create requset: %v", err),
-// )
-
-// 			// add url params to request.
-// 			q := req.URL.Query()
-// 			q.Add(tc.param, tc.value)
-// 			req.URL.RawQuery = q.Encode()
-
-// 			rec := httptest.NewRecorder()
-// 			network.Remove(rec, req)
-
-// 			res := rec.Result()
-// 			defer res.Body.Close()
-// 			if tc.err != "" {
-// 				assert.Equal(t,
-//  http.StatusBadRequest,
-//   res.StatusCode,
-//   fmt.Sprintf("expected status Bad Request; got: %v",
-//   res.StatusCode),
-// )
-// 				return
-// 			}
-// 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("expected status %v; got %v", tc.status, res.StatusCode))
-// 		})
-// 	}
-// }
+		})
+	}
+}

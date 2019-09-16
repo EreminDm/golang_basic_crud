@@ -58,7 +58,10 @@ func (m *Mongodatabase) One(ctx context.Context, id string) (entity.PersonalData
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: val}}
 	err = m.Person.FindOne(ctx, filter).Decode(&p)
-	return p.transmit(), errors.Wrap(err, "could not find document in database")
+	if err != nil {
+		return entity.PersonalData{}, errors.Wrap(err, "could not find document in database")
+	}
+	return p.transmit(), nil
 }
 
 // Insert is a function which adding data to database.
