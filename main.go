@@ -4,12 +4,15 @@ import (
 	"context"
 	"flag"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/EreminDm/golang_basic_crud/controller"
-	"github.com/EreminDm/golang_basic_crud/httphandler"
 	"github.com/EreminDm/golang_basic_crud/mongo"
+	g "github.com/EreminDm/golang_basic_crud/nets/grpc"
+	"github.com/EreminDm/golang_basic_crud/nets/httphandler"
+	"google.golang.org/grpc"
 )
 
 // main initializes connection to database using timeout context,
@@ -31,8 +34,23 @@ func main() {
 	c := controller.New(m)
 	// returns handler provider.
 	h := httphandler.New(c)
+	// start listen grpc server on port 8888.
+	go grpcServer(c)
 	// port environment define to 8000.
 	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", h))
+}
+
+// grpcServer runs on port 8888,
+// use as a `github.com/EreminDm/golang_basic_crud/nets.Provider`.
+func grpcServer(cp *controller.Personal) {
+	srv := grpc.NewServer()
+	var pdServer = g.New(cp)
+	g.RegisterPersonalDataServer(srv, pdServer)
+	l, err := net.Listen("tcp", ":8888")
+	if err != nil {
+		log.Fatalf("could not listen to :8888: %v", err)
+	}
+	log.Fatal(srv.Serve(l))
 }
 
 // envf reades command line flags for database connection,

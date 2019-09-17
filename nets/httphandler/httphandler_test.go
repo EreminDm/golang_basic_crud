@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
+	"github.com/EreminDm/golang_basic_crud/nets"
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -20,12 +21,12 @@ import (
 )
 
 func TestNewHandler(t *testing.T) {
-	var p Provider
+	var p nets.Provider
 	var expected mux.Router
 
 	tt := []struct {
 		name     string
-		provider Provider
+		provider nets.Provider
 		equal    bool
 	}{
 		{name: "Not nil interface", provider: p, equal: true},

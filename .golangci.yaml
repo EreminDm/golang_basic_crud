@@ -1,5 +1,8 @@
 ---
 linters-settings:
+  gosec:
+    settings:
+      exclude: "G102"
   govet:
     check-shadowing: true
   golint:
@@ -29,13 +32,17 @@ linters:
   - maligned
   - prealloc
   - gochecknoglobals
+  - interfacer
 run:
   skip-dirs:
   - test/testdata_etc
   - pkg/golinters/goanalysis/(checker|passes)
 issues:
   exclude-rules:
-  - text: weak cryptographic primitive
+  - text: weak cryptographic primitive    
+    linters:
+    - gosec
+  - text: Binds to all network interfaces
     linters:
     - gosec
 service:

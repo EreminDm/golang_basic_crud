@@ -1,7 +1,6 @@
 package httphandler
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,22 +8,14 @@ import (
 	"net/http"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
+	"github.com/EreminDm/golang_basic_crud/nets"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
 // Controller describes controller implementation.
 type Controller struct {
-	CTR Provider
-}
-
-// Provider describes provider methods.
-type Provider interface {
-	One(ctx context.Context, value string) (entity.PersonalData, error)
-	All(ctx context.Context) ([]entity.PersonalData, error)
-	Remove(ctx context.Context, id string) (int64, error)
-	Update(ctx context.Context, p entity.PersonalData) (int64, error)
-	Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error)
+	CTR nets.Provider
 }
 
 // personalData is personal data filds description.
@@ -38,7 +29,7 @@ type personalData struct {
 }
 
 // New returns new controller provider
-func New(c Provider) http.Handler {
+func New(c nets.Provider) http.Handler {
 	return Handler(&Controller{
 		CTR: c,
 	})
