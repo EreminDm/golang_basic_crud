@@ -26,3 +26,4 @@ script:
 
 after_success:
   - goveralls -service=travis-ci -coverprofile=coverage.out
+  
