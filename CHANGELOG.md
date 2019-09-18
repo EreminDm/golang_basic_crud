@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- GRPC layer, which represent ways for communication with service
+- GRPC layer, which represents ways for communication with service
 - Nets layer, which includes implementation beetween transport layer and other layers
 
 ### Changed

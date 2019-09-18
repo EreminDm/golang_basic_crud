@@ -18,8 +18,11 @@ lint:
 
 .PHONY: proto
 proto:
-	wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protobuf-all-3.6.1.tar.gz
-	tar -xzvf protobuf-all-3.6.1.tar.gz
-	pushd protobuf-3.6.1 && ./configure --prefix=/usr && make && sudo make install && popd
-	cd ./net/grpc/
-	protoc -I . grpc.proto --go_out=plugins=grpc:.
+	sudo wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protobuf-all-3.6.1.tar.gz
+	sudo cp -R protobuf-all-3.6.1.tar.gz ~/go/src/github.com
+	sudo rm -rf protobuf-all-3.6.1.tar.gz
+	cd ~/go/src/github.com
+	sudo tar -xzvf protobuf-all-3.6.1.tar.gz
+	sudo pushd protobuf-3.6.1 && ./configure --prefix=/usr && make && sudo make install && popd
+	cd ~/go/src/github.com/EreminDm/golang_basic_crud/net/grpc
+	sudo protoc -I . grpc.proto --go_out=plugins=grpc:.

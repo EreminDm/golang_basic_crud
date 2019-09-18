@@ -81,7 +81,7 @@ func (c Controller) Update(ctx context.Context, personal *Person) (*Count, error
 	}, nil
 }
 
-// Insert returns added a personal information object.
+// Insert returns added personal information objects.
 func (c Controller) Insert(ctx context.Context, personal *Person) (*Person, error) {
 	ep := personal.transmit()
 	res, err := c.CTR.Insert(ctx, ep)
