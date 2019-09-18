@@ -18,6 +18,8 @@ lint:
 
 .PHONY: proto
 proto:
-	go get -u github.com/golang/protobuf/protoc-gen-go
-	cd ./net/grpc/; \
+	wget https://protobuf.googlecode.com/files/protobuf-2.4.1.tar.gz
+    tar -xzvf protobuf-2.4.1.tar.gz
+    pushd protobuf-2.4.1 && ./configure --prefix=/usr && make && sudo make install && popd
 	protoc -I . grpc.proto --go_out=plugins=grpc:.
+	
