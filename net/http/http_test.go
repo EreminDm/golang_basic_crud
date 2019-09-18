@@ -212,6 +212,7 @@ type controllerMockedObject struct {
 	mock.Mock
 }
 
+// Insert adds a personal information.
 func (m *controllerMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	fmt.Println("Mocked insert function")
 	fmt.Printf("Document passed in: %v\n", document)
@@ -219,6 +220,7 @@ func (m *controllerMockedObject) Insert(ctx context.Context, document entity.Per
 	return args.Get(0).(entity.PersonalData), args.Error(1)
 }
 
+// One returns personal information.
 func (m *controllerMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
 	fmt.Println("Mocked one function")
 	fmt.Printf("ID passed in: %s\n", id)
@@ -247,12 +249,6 @@ func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, 
 	fmt.Printf("ID passed in: %s\n", id)
 	args := m.Called(ctx, id)
 	return int64(1), args.Error(1)
-}
-
-type errReader int
-
-func (errReader) Read(p []byte) (n int, err error) {
-	return 0, errors.New("test error")
 }
 
 func TestInsert(t *testing.T) {
