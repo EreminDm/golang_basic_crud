@@ -22,8 +22,5 @@ before_script:
 script:
   - golangci-lint run
   - go test -v -covermode=count -coverprofile=coverage.out ./...
-  
-
-after_success:
   - goveralls -service=travis-ci -coverprofile=coverage.out
   
