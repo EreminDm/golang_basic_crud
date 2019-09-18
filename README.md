@@ -16,7 +16,7 @@ Golang Basic Crud is a test project that describes basic CRUD methods for a data
 
 ## Golang Basic Crud Releases
 
-Releases are available on the [releases page](https://github.com/golangci/golangci-lint/releases).
+Releases are available on the [releases page](https://github.com/EreminDm/golang_basic_crud/releases).
 
 ## Contact Information
 
