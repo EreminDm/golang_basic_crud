@@ -1,15 +1,15 @@
 package grpc
 
 import (
-	context "context"
+	"context"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
-	"github.com/EreminDm/golang_basic_crud/nets"
+	"github.com/EreminDm/golang_basic_crud/net"
 	"github.com/pkg/errors"
 )
 
 // New returns implemented controller.
-func New(c nets.Provider) Controller {
+func New(c net.Provider) Controller {
 	return Controller{
 		CTR: c,
 	}
@@ -17,7 +17,7 @@ func New(c nets.Provider) Controller {
 
 // Controller describes controller implementation.
 type Controller struct {
-	CTR nets.Provider
+	CTR net.Provider
 }
 
 // receive returns grpc package person object construction.

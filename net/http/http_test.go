@@ -1,4 +1,4 @@
-package httphandler
+package http
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
-	"github.com/EreminDm/golang_basic_crud/nets"
+	"github.com/EreminDm/golang_basic_crud/net"
 	"github.com/gavv/httpexpect"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -21,12 +21,12 @@ import (
 )
 
 func TestNewHandler(t *testing.T) {
-	var p nets.Provider
+	var p net.Provider
 	var expected mux.Router
 
 	tt := []struct {
 		name     string
-		provider nets.Provider
+		provider net.Provider
 		equal    bool
 	}{
 		{name: "Not nil interface", provider: p, equal: true},

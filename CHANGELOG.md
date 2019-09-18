@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- HTTP layer migrated to nets
+- HTTP layer migrated to net
 
 ## [0.0.1] - 2019-09-13
 

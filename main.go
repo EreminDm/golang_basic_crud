@@ -10,8 +10,8 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/controller"
 	"github.com/EreminDm/golang_basic_crud/mongo"
-	g "github.com/EreminDm/golang_basic_crud/nets/grpc"
-	"github.com/EreminDm/golang_basic_crud/nets/httphandler"
+	netgrpc "github.com/EreminDm/golang_basic_crud/net/grpc"
+	nethttp "github.com/EreminDm/golang_basic_crud/net/http"
 	"google.golang.org/grpc"
 )
 
@@ -33,7 +33,7 @@ func main() {
 	// returns controller provider.
 	c := controller.New(m)
 	// returns handler provider.
-	h := httphandler.New(c)
+	h := nethttp.New(c)
 	// start listen grpc server on port 8888.
 	go grpcServer(c)
 	// port environment define to 8000.
@@ -41,11 +41,11 @@ func main() {
 }
 
 // grpcServer runs on port 8888,
-// use as a `github.com/EreminDm/golang_basic_crud/nets.Provider`.
+// use as a `github.com/EreminDm/golang_basic_crud/net.Provider`.
 func grpcServer(cp *controller.Personal) {
 	srv := grpc.NewServer()
-	var pdServer = g.New(cp)
-	g.RegisterPersonalDataServer(srv, pdServer)
+	var pdServer = netgrpc.New(cp)
+	netgrpc.RegisterPersonalDataServer(srv, pdServer)
 	l, err := net.Listen("tcp", ":8888")
 	if err != nil {
 		log.Fatalf("could not listen to :8888: %v", err)

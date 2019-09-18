@@ -1,4 +1,4 @@
-package nets
+package net
 
 import (
 	"context"

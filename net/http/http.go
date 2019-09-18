@@ -1,4 +1,4 @@
-package httphandler
+package http
 
 import (
 	"encoding/json"
@@ -8,14 +8,14 @@ import (
 	"net/http"
 
 	"github.com/EreminDm/golang_basic_crud/entity"
-	"github.com/EreminDm/golang_basic_crud/nets"
+	"github.com/EreminDm/golang_basic_crud/net"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
 // Controller describes controller implementation.
 type Controller struct {
-	CTR nets.Provider
+	CTR net.Provider
 }
 
 // personalData is personal data filds description.
@@ -29,13 +29,13 @@ type personalData struct {
 }
 
 // New returns new controller provider
-func New(c nets.Provider) http.Handler {
+func New(c net.Provider) http.Handler {
 	return Handler(&Controller{
 		CTR: c,
 	})
 }
 
-// receive returns httphandler package personal data construction.
+// receive returns http package personal data construction.
 func receive(ep entity.PersonalData) personalData {
 	return personalData{
 		DocumentID:  ep.DocumentID,
@@ -130,7 +130,7 @@ func (c *Controller) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// converts data to httphandler layout.
+	// converts data to http layout.
 	for _, ep := range usrs {
 		var epp = entity.PersonalData{
 			DocumentID:  ep.DocumentID,
