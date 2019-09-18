@@ -2,33 +2,44 @@ syntax = "proto3";
 
 package grpc;
 
+// Void is empty message struct.
 message Void {}
 
+// ObjectID is a struct which includes documents object id definiion.
 message ObjectID {
     string objectID = 1;
 }
 
+// Count describes a value of removed or updated documents.
 message Count{
-    int64 count =1;
+    int64 count = 1;
 }
 
+// Person is a struct which describes the personal information.
 message Person {
     string documentID = 1;
     string name = 2;
-    string lastName =3;
-    string phone =4;
-    string email =5;
-    int32 yearOfBirth =6;
+    string lastName = 3;
+    string phone = 4;
+    string email = 5;
+    int32 yearOfBirth = 6;
 }
 
+// PresonalDataList includes a slice of a Person.
 message PersonalDataList{
-    repeated Person person =1;
+    repeated Person person = 1;
 }
 
+// PersonalData service describes an interface of Person.
 service PersonalData {
+    // List returns PersonalDataList slice.
     rpc List(Void) returns(PersonalDataList) {}
+    // One returns Person object information.
     rpc One(ObjectID) returns(Person) {}
+    // Update returns a count of udated documents.
     rpc Update(Person) returns(Count) {}
+    // Insert returns a Person information which added in system.
     rpc Insert(Person) returns(Person) {}
+    // Remove returns a count of removed documents.
     rpc Remove(ObjectID) returns(Count) {}
 }
