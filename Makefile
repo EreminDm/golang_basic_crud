@@ -18,5 +18,6 @@ lint:
 
 .PHONY: proto
 proto:
+	sudo apt-get install autoconf automake libtool curl make g++ unzip
 	cd ./net/grpc/; \
 	protoc -I . grpc.proto --go_out=plugins=grpc:.
