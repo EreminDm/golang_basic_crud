@@ -1,5 +1,5 @@
 #!/bin/sh
 set -ex
-wget https://protobuf.googlecode.com/files/protobuf-2.4.1.tar.gz
-tar -xzvf protobuf-2.4.1.tar.gz
-cd protobuf-2.4.1 && ./configure --prefix=/usr && make && sudo make install
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.6.1/protobuf-all-3.6.1.tar.gz
+tar -xzvf protobuf-all-3.6.1.tar.gz
+pushd protobuf-3.6.1 && ./configure --prefix=/usr && make && sudo make install && popd
