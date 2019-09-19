@@ -19,7 +19,6 @@ before_script:
 script:
   - golangci-lint run
   - go test ./... -v -covermode=count -coverprofile=coverage.out.tmp
-  - cat cover.out.tmp | grep -v "grpc.pb.go" > cover.out
-  - tool cover -func cover.out
+  - cat coverage | grep -v "grpc.pb.go" > coverage.out
   - goveralls -service=travis-ci -coverprofile=coverage.out
   
