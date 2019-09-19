@@ -20,7 +20,6 @@ before_script:
   - protoc -I . grpc.proto --go_out=plugins=grpc:.
   - cd ../..
   
-
 script:
   - golangci-lint run
   - go test -v -covermode=count -coverprofile=coverage.out ./...
