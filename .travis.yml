@@ -5,14 +5,16 @@ go:
 
 services:
   - mongodb
+  
+install:
+ - install-protobuf.sh
 
 before_script:
   - sleep 15
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
   - go install github.com/mattn/goveralls
-  - install-protobuf.sh
   - go get -u github.com/golang/protobuf/protoc-gen-go
-  - ./net/grpc/ protoc -I . grpc.proto --go_out=plugins=grpc:.
+  - cd ./net/grpc/ && protoc -I . grpc.proto --go_out=plugins=grpc:.
 
 script:
   - golangci-lint run
