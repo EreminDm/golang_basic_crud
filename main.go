@@ -85,7 +85,7 @@ func envf() (string, string, string) {
 	flag.StringVar(
 		&db,
 		"database",
-		"information",
+		"person",
 		"-database_name flag is a name of work database, example: -database_name=database_name_here",
 	)
 	flag.StringVar(
