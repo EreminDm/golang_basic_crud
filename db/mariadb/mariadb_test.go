@@ -38,7 +38,7 @@ func TestConnect(t *testing.T) {
 			context:       ctx,
 			connectionURI: "",
 			dbName:        dbName,
-			err:           "could not get stable connection to databases: Error 1045: Access denied for user ''@'localhost' (using password: NO)",
+			err:           "could not get stable connection to databases: Error 1045: Access denied for user ''@'localhost'",
 		},
 	}
 	for _, tc := range tt {
