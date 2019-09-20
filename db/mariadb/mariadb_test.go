@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	conURI = "test:root@tcp(127.0.0.1:3306)"
+	conURI = "root:root@tcp(127.0.0.1:3306)"
 	dbName = "person"
 )
 

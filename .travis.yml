@@ -13,9 +13,6 @@ addons:
 #   - bash install-protobuf.sh
 
 before_script:
-  - mysql CREATE USER 'test'@'%' IDENTIFIED BY 'root';
-  - mysql GRANT SHOW DATABASES, SELECT, PROCESS, EXECUTE, ALTER ROUTINE, ALTER, SHOW VIEW, CREATE TABLESPACE, CREATE ROUTINE, CREATE, DELETE, CREATE VIEW, CREATE TEMPORARY TABLES, INDEX, EVENT, DROP, TRIGGER, REFERENCES, INSERT, FILE, CREATE USER, UPDATE, RELOAD, LOCK TABLES, SHUTDOWN, REPLICATION SLAVE, REPLICATION CLIENT, SUPER ON *.* TO 'test'@'%';
-  - mysql FLUSH PRIVILEGES;
   - mysql < db/mariadb/migrations/up/baseline.sql
   # - sleep 15
   # - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
