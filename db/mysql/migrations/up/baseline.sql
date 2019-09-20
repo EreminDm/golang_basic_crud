@@ -11,6 +11,4 @@ CREATE TABLE IF NOT EXISTS `person`.`personal_data` (
 	`phone` CHAR(50) NULL DEFAULT NULL,
 	`email` CHAR(50) NULL DEFAULT NULL,
 	`year_od_birth` INT(11) NULL DEFAULT NULL
-)
-ENGINE=InnoDB
-;
+);
