@@ -5,7 +5,7 @@ FLUSH PRIVILEGES;
 CREATE DATABASE IF NOT EXISTS person;
 
 CREATE TABLE IF NOT EXISTS `person`.`personal_data` (
-	`document_id` CHAR(50) NOT NULL,
+	`id` CHAR(50) NOT NULL,
 	`name` CHAR(50) NOT NULL,
 	`last_name` CHAR(50) NOT NULL,
 	`phone` CHAR(50) NULL DEFAULT NULL,

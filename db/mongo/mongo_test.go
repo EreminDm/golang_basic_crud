@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/EreminDm/golang_basic_crud/mongo"
+	"github.com/EreminDm/golang_basic_crud/db/mongo"
 	"github.com/stretchr/testify/assert"
 
 	"testing"
