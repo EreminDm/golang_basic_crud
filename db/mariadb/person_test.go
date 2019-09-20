@@ -377,7 +377,7 @@ func TestRemove(t *testing.T) {
 					t,
 					tc.expectedResponce,
 					er,
-					fmt.Sprintf("expected responce not equal; want %v\n got: %v", tc.expectedResponce, er),
+					fmt.Sprintf("expected response not equal; want %v\n got: %v", tc.expectedResponce, er),
 				)
 				return
 			}
