@@ -33,6 +33,7 @@ linters:
   - prealloc
   - gochecknoglobals
   - interfacer
+  - dupl
 run:
   skip-dirs:
   - test/testdata_etc
