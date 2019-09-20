@@ -3,7 +3,7 @@ language: go
 go:
 - "1.13"
 
-#dist: precise
+dist: precise
 
 services:
   - mongodb
