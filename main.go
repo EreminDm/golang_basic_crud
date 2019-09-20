@@ -29,6 +29,7 @@ func main() {
 	defer cancel()
 
 	var c *controller.Personal
+	// switch between database types
 	switch dbtype {
 	case "mongo":
 		// returns mongo collection.
