@@ -14,7 +14,7 @@ addons:
 
 before_script:
   - pwd
-  - mysql -u root --password="root" < db/mariadb/migrations/up/baseline.sql
+  - mysql < db/mariadb/migrations/up/baseline.sql
   # - sleep 15
   # - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
   # - go install github.com/mattn/goveralls
