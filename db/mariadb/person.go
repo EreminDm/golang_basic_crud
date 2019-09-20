@@ -54,7 +54,7 @@ func (m MariaDB) One(ctx context.Context, id string) (entity.PersonalData, error
 
 	var p personalData
 
-	err = stmt.QueryRowContext(ctx, id).Scan(&p)
+	err = stmt.QueryRowContext(ctx, id).Scan(&p.ID, &p.Name, &p.LastName, &p.Phone, &p.Email, &p.YearOfBirth)
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not scan row")
 	}
@@ -65,7 +65,7 @@ func (m MariaDB) One(ctx context.Context, id string) (entity.PersonalData, error
 // Insert is a function which adding data to database.
 func (m MariaDB) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	p := receive(document)
-	sqlQuery := "INSERT INTO person (id, name, last_name, phone, email, year_od_birth ) VALUES (\"?\", \"?\", \"?\", \"?\", \"?\", ?);"
+	sqlQuery := "INSERT INTO person (id, name, last_name, phone, email, year_od_birth ) VALUES (?,?,?,?,?,?);"
 
 	stmt, err := m.Person.Prepare(sqlQuery)
 	if err != nil {
@@ -97,7 +97,7 @@ func (m MariaDB) All(ctx context.Context) ([]entity.PersonalData, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&p)
+		err = rows.Scan(&p.ID, &p.Name, &p.LastName, &p.Phone, &p.Email, &p.YearOfBirth)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not scan rows")
 		}
@@ -132,7 +132,7 @@ func (m MariaDB) Remove(ctx context.Context, id string) (int64, error) {
 // Update rewrites information in db by user id filtration.
 func (m MariaDB) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
 	p := receive(ep)
-	sqlQuery := "UPDATE person SET name=\"?\", last_name=\"?\", phone=\"?\", email=\"?\", year_od_birth=%d where id= ?"
+	sqlQuery := "UPDATE person SET name=?, last_name=?, phone=?, email=?, year_od_birth=? where id= ?"
 	stmt, err := m.Person.Prepare(sqlQuery)
 	if err != nil {
 		return 0, errors.Wrap(err, "could not prepare query statement")

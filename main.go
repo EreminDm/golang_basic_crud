@@ -13,7 +13,6 @@ import (
 	"github.com/EreminDm/golang_basic_crud/db/mongo"
 	netgrpc "github.com/EreminDm/golang_basic_crud/net/grpc"
 	nethttp "github.com/EreminDm/golang_basic_crud/net/http"
-	_ "github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 )
 

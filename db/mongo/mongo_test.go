@@ -3,12 +3,11 @@ package mongo_test
 import (
 	"context"
 	"fmt"
+	"testing"
 	"time"
 
 	"github.com/EreminDm/golang_basic_crud/db/mongo"
 	"github.com/stretchr/testify/assert"
-
-	"testing"
 )
 
 func TestConnect(t *testing.T) {
