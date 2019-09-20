@@ -33,13 +33,6 @@ func TestConnect(t *testing.T) {
 			dbName:        dbName,
 			err:           "",
 		},
-		{
-			name:          "Not connection",
-			context:       ctx,
-			connectionURI: conURI,
-			dbName:        "dbName",
-			err:           "could not get stable connection to databases: Error 1049: Unknown database 'dbname'",
-		},
 	}
 	for _, tc := range tt {
 		tc := tc
