@@ -5,9 +5,8 @@ go:
 
 # services:
 #   - mongodb
-
-addons:
-  mariadb: '10.0'
+service:
+  - mysql
 
 # before_install:
 #   - bash install-protobuf.sh
