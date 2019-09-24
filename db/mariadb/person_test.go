@@ -322,6 +322,8 @@ func TestRemove(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
+	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
+	wrcancel()
 	m, err := Connect(ctx, conURI, dbName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
@@ -365,11 +367,27 @@ func TestRemove(t *testing.T) {
 			ctx:         ctx,
 			err:         "",
 		},
+		{
+			name:             "wrong context -> failed remove document from database",
+			collection:       m,
+			expectedResponce: 0,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1999,
+			},
+			removingOID: primitive.NewObjectID().Hex(),
+			ctx:         wrongctx,
+			err:         "could not remove data: context canceled",
+		},
 	}
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
+			_, err = tc.collection.Insert(ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
 			er, err := tc.collection.Remove(tc.ctx, tc.removingOID)
 			if tc.expectedResponce != er {
@@ -378,6 +396,15 @@ func TestRemove(t *testing.T) {
 					tc.expectedResponce,
 					er,
 					fmt.Sprintf("expected response not equal; want %v\n got: %v", tc.expectedResponce, er),
+				)
+				return
+			}
+			if tc.err != "" {
+				assert.Equal(
+					t,
+					tc.err,
+					err.Error(),
+					fmt.Sprintf("expected response not equal; want %v\n got: %v", tc.err, err.Error()),
 				)
 				return
 			}
@@ -400,6 +427,8 @@ func TestUpdate(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
+	wrcancel()
 	m, err := Connect(ctx, conURI, dbName)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
@@ -455,15 +484,29 @@ func TestUpdate(t *testing.T) {
 			},
 			expectedResponce: 0,
 			ctx:              ctx,
-			err: "could not receive struct:" +
-				" could not convert DocumentID type string to type ObjectID:" +
-				" the provided hex string is not a valid ObjectID",
+			err:              "",
+		},
+		{
+			name:       "Faild update document in database",
+			collection: m,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1999,
+			},
+			updateT:          entity.PersonalData{},
+			expectedResponce: 0,
+			ctx:              wrongctx,
+			err:              "could not update data: context canceled",
 		},
 	}
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			_, err = tc.collection.Insert(tc.ctx, tc.enterT)
+			_, err = tc.collection.Insert(ctx, tc.enterT)
 			assert.NoError(t, err, "could not insert data to database")
 			er, err := tc.collection.Update(tc.ctx, tc.updateT)
 			if tc.expectedResponce != er {
@@ -472,6 +515,15 @@ func TestUpdate(t *testing.T) {
 					tc.expectedResponce,
 					er,
 					fmt.Sprintf("Update counts not equal; want %v\n got: %v", tc.expectedResponce, er),
+				)
+				return
+			}
+			if tc.err != "" {
+				assert.Equal(
+					t,
+					tc.err,
+					err.Error(),
+					fmt.Sprintf("Errors not equals; want %v\n got: %v", tc.err, err.Error()),
 				)
 				return
 			}
