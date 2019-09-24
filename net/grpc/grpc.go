@@ -2,10 +2,13 @@ package grpc
 
 import (
 	"context"
+	n "net"
 
+	"github.com/EreminDm/golang_basic_crud/controller"
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/EreminDm/golang_basic_crud/net"
 	"github.com/pkg/errors"
+	grpc "google.golang.org/grpc"
 )
 
 // New returns implemented controller.
@@ -18,6 +21,18 @@ func New(c net.Provider) Controller {
 // Controller describes controller implementation.
 type Controller struct {
 	CTR net.Provider
+}
+
+// ConnectServer runs on port 8888,
+func ConnectServer(cp *controller.Personal) (n.Listener, *grpc.Server, error) {
+	srv := grpc.NewServer()
+	var pdServer = New(cp)
+	RegisterPersonalDataServer(srv, pdServer)
+	l, err := n.Listen("tcp", ":8888")
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "could not listen to :8888")
+	}
+	return l, srv, nil
 }
 
 // receive returns grpc package person object construction.

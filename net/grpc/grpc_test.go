@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/EreminDm/golang_basic_crud/controller"
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/EreminDm/golang_basic_crud/net"
 	"github.com/stretchr/testify/assert"
@@ -33,6 +34,13 @@ func TestNew(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestConnectServer(t *testing.T) {
+	c := &controller.Personal{}
+	_, _, err := ConnectServer(c)
+	assert.NoError(t, err, "could not make correct connection")
+	//assert.Equal(t, n.Listener, l, "type is not equals want %v, got %v", n.Listener, l)
 }
 
 func TestReceive(t *testing.T) {

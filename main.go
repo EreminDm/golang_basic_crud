@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"net"
 	"net/http"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/EreminDm/golang_basic_crud/db/mongo"
 	netgrpc "github.com/EreminDm/golang_basic_crud/net/grpc"
 	nethttp "github.com/EreminDm/golang_basic_crud/net/http"
-	"google.golang.org/grpc"
 )
 
 // main initializes connection to database using timeout context,
@@ -26,7 +24,6 @@ func main() {
 	// create context for db connection.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
 	var c *controller.Personal
 	// switch between database types
 	switch dbtype {
@@ -48,26 +45,16 @@ func main() {
 		// returns controller provider.
 		c = controller.New(m)
 	}
-
 	// returns handler provider.
 	h := nethttp.New(c)
 	// start listen grpc server on port 8888.
-	go grpcServer(c)
+	l, srv, err := netgrpc.ConnectServer(c)
+	if err != nil {
+		log.Fatalf("could not init grpc servers port: %v", err)
+	}
+	go log.Fatal(srv.Serve(l))
 	// port environment define to 8000.
 	log.Fatalf(`server initialization fail: %v`, http.ListenAndServe(":8000", h))
-}
-
-// grpcServer runs on port 8888,
-// use as a `github.com/EreminDm/golang_basic_crud/net.Provider`.
-func grpcServer(cp *controller.Personal) {
-	srv := grpc.NewServer()
-	var pdServer = netgrpc.New(cp)
-	netgrpc.RegisterPersonalDataServer(srv, pdServer)
-	l, err := net.Listen("tcp", ":8888")
-	if err != nil {
-		log.Fatalf("could not listen to :8888: %v", err)
-	}
-	log.Fatal(srv.Serve(l))
 }
 
 // envf reades command line flags for database connection,
