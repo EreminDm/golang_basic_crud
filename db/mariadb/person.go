@@ -46,15 +46,10 @@ func (p personalData) transmit() entity.PersonalData {
 // id params to make filtration.
 func (m MariaDB) One(ctx context.Context, id string) (entity.PersonalData, error) {
 	sqlQuery := "SELECT * FROM person WHERE id = ?"
-	stmt, err := m.Person.Prepare(sqlQuery)
-	if err != nil {
-		return entity.PersonalData{}, errors.Wrap(err, "could not prepare query statement")
-	}
-	defer stmt.Close()
-
 	var p personalData
 
-	err = stmt.QueryRowContext(ctx, id).Scan(&p.ID, &p.Name, &p.LastName, &p.Phone, &p.Email, &p.YearOfBirth)
+	row := m.Person.QueryRowContext(ctx, sqlQuery, id)
+	err := row.Scan(&p.ID, &p.Name, &p.LastName, &p.Phone, &p.Email, &p.YearOfBirth)
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not scan row")
 	}
@@ -66,32 +61,19 @@ func (m MariaDB) One(ctx context.Context, id string) (entity.PersonalData, error
 func (m MariaDB) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	p := receive(document)
 	sqlQuery := "INSERT INTO person (id, name, last_name, phone, email, year_od_birth ) VALUES (?,?,?,?,?,?);"
-
-	stmt, err := m.Person.Prepare(sqlQuery)
-	if err != nil {
-		return entity.PersonalData{}, errors.Wrap(err, "could not prepare query statement")
-	}
-	defer stmt.Close()
-
-	_, err = stmt.ExecContext(ctx, p.ID, p.Name, p.LastName, p.Phone, p.Email, p.YearOfBirth)
+	_, err := m.Person.ExecContext(ctx, sqlQuery, p.ID, p.Name, p.LastName, p.Phone, p.Email, p.YearOfBirth)
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not exec query statement")
 	}
-
 	return document, nil
 }
 
 // All selects all documents from database.
 func (m MariaDB) All(ctx context.Context) ([]entity.PersonalData, error) {
 	sqlQuery := fmt.Sprintf("SELECT * FROM person")
-	stmt, err := m.Person.Prepare(sqlQuery)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not prepare query statement")
-	}
-	defer stmt.Close()
 	var p personalData
 	var persons []entity.PersonalData
-	rows, err := stmt.QueryContext(ctx)
+	rows, err := m.Person.QueryContext(ctx, sqlQuery)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not make query")
 	}
@@ -112,13 +94,7 @@ func (m MariaDB) All(ctx context.Context) ([]entity.PersonalData, error) {
 // Remove deletes document from Mongo.
 func (m MariaDB) Remove(ctx context.Context, id string) (int64, error) {
 	sqlQuery := "DELETE FROM person WHERE id = ?"
-	stmt, err := m.Person.Prepare(sqlQuery)
-	if err != nil {
-		return 0, errors.Wrap(err, "could not prepare query statement")
-	}
-	defer stmt.Close()
-
-	rslt, err := stmt.ExecContext(ctx, id)
+	rslt, err := m.Person.ExecContext(ctx, sqlQuery, id)
 	if err != nil {
 		return 0, errors.Wrap(err, "could not remove data")
 	}
@@ -133,13 +109,8 @@ func (m MariaDB) Remove(ctx context.Context, id string) (int64, error) {
 func (m MariaDB) Update(ctx context.Context, ep entity.PersonalData) (int64, error) {
 	p := receive(ep)
 	sqlQuery := "UPDATE person SET name=?, last_name=?, phone=?, email=?, year_od_birth=? where id= ?"
-	stmt, err := m.Person.Prepare(sqlQuery)
-	if err != nil {
-		return 0, errors.Wrap(err, "could not prepare query statement")
-	}
-	defer stmt.Close()
 
-	rslt, err := stmt.ExecContext(ctx, p.Name, p.LastName, p.Phone, p.Email, p.YearOfBirth, p.ID)
+	rslt, err := m.Person.ExecContext(ctx, sqlQuery, p.Name, p.LastName, p.Phone, p.Email, p.YearOfBirth, p.ID)
 	if err != nil {
 		return 0, errors.Wrap(err, "could not update data")
 	}
