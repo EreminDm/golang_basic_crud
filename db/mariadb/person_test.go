@@ -409,14 +409,12 @@ func TestRemove(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err, "could not remove data from database")
-
 			assert.Equal(
 				t,
 				tc.expectedResponce,
 				er,
 				fmt.Sprintf("actual data not equals; want %v\n got: %v", tc.expectedResponce, er),
 			)
-
 			_, err = tc.collection.Remove(tc.ctx, tc.enterT.DocumentID)
 			assert.NoError(t, err, "could not remove document from database")
 		})
