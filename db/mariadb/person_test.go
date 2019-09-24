@@ -236,7 +236,6 @@ func TestAll(t *testing.T) {
 }
 
 func TestOne(t *testing.T) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
@@ -312,7 +311,6 @@ func TestOne(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -331,7 +329,7 @@ func TestRemove(t *testing.T) {
 		{
 			name:             "Remove document from database",
 			collection:       m,
-			expectedResponce: 1,
+			expectedResponce: 2,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
@@ -415,7 +413,6 @@ func TestRemove(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -450,7 +447,7 @@ func TestUpdate(t *testing.T) {
 				Email:       "test@test.test",
 				YearOfBirth: 1999,
 			},
-			expectedResponce: 1,
+			expectedResponce: 2,
 			ctx:              ctx,
 			err:              "",
 		},
