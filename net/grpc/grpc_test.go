@@ -9,6 +9,7 @@ import (
 	"github.com/EreminDm/golang_basic_crud/controller"
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/EreminDm/golang_basic_crud/net"
+	grpcproto "github.com/EreminDm/golang_basic_crud/net/grpc/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -47,7 +48,7 @@ func TestReceive(t *testing.T) {
 	tt := []struct {
 		name      string
 		enterT    entity.PersonalData
-		expectedT Person
+		expectedT grpcproto.Person
 		err       error
 	}{
 		{
@@ -60,7 +61,7 @@ func TestReceive(t *testing.T) {
 				Email:       "test@test.test",
 				YearOfBirth: 1234,
 			},
-			expectedT: Person{
+			expectedT: grpcproto.Person{
 				DocumentID:  "ObjectID",
 				Name:        "Name",
 				LastName:    "LName",
@@ -89,13 +90,13 @@ func TestReceive(t *testing.T) {
 func TestTransmit(t *testing.T) {
 	tt := []struct {
 		name      string
-		enterT    Person
+		enterT    grpcproto.Person
 		expectedT entity.PersonalData
 		err       error
 	}{
 		{
 			name: "Recive data from entity package type to mongo",
-			enterT: Person{
+			enterT: grpcproto.Person{
 				DocumentID:  "ObjectID",
 				Name:        "Name",
 				LastName:    "LName",
@@ -118,7 +119,7 @@ func TestTransmit(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			actualT := tc.enterT.transmit()
+			actualT := transmit(&tc.enterT)
 			assert.Equal(
 				t,
 				tc.expectedT,
@@ -168,14 +169,14 @@ func TestInsert(t *testing.T) {
 	c := New(ctr)
 	tt := []struct {
 		name           string
-		object         Person
+		object         grpcproto.Person
 		expectedObject entity.PersonalData
 		expectedError  error
 		err            string
 	}{
 		{
 			name: "Success request",
-			object: Person{
+			object: grpcproto.Person{
 				DocumentID:  "",
 				Name:        "firstName",
 				LastName:    "secondName",
@@ -186,7 +187,7 @@ func TestInsert(t *testing.T) {
 			expectedError: nil,
 		}, {
 			name:          "Wrong request",
-			object:        Person{},
+			object:        grpcproto.Person{},
 			expectedError: errors.New("error"),
 			err:           "could not insert document: error",
 		},
@@ -195,7 +196,7 @@ func TestInsert(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			ctr.On("Insert", mock.Anything, tc.object.transmit()).Return(tc.expectedObject, tc.expectedError).Once()
+			ctr.On("Insert", mock.Anything, transmit(&tc.object)).Return(tc.expectedObject, tc.expectedError).Once()
 			p, err := c.Insert(context.Background(), &tc.object)
 			if tc.err != "" {
 				assert.Equal(t,
@@ -222,22 +223,22 @@ func TestOne(t *testing.T) {
 
 	tt := []struct {
 		name           string
-		object         Person
-		objID          *ObjectID
+		object         grpcproto.Person
+		objID          *grpcproto.ObjectID
 		expectedObject entity.PersonalData
 		expectedError  error
 		err            string
 	}{
 		{
 			name: "Success request",
-			objID: &ObjectID{
+			objID: &grpcproto.ObjectID{
 				ObjectID: oid,
 			},
 			expectedError: nil,
 			err:           "",
 		}, {
 			name:          "Wrong request",
-			objID:         &ObjectID{},
+			objID:         &grpcproto.ObjectID{},
 			expectedError: errors.New("error"),
 			err:           "could not get personal information: error",
 		},
@@ -271,7 +272,7 @@ func TestList(t *testing.T) {
 
 	tt := []struct {
 		name           string
-		object         PersonalDataList
+		object         grpcproto.PersonalDataList
 		expectedObject []entity.PersonalData
 		expectedError  error
 		err            string
@@ -292,7 +293,7 @@ func TestList(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			ctr.On("All", mock.Anything).Return(tc.expectedObject, tc.expectedError)
-			p, err := c.List(context.Background(), &Void{})
+			p, err := c.List(context.Background(), &grpcproto.Void{})
 			if tc.err != "" {
 				assert.Equal(t,
 					tc.err,
@@ -316,14 +317,14 @@ func TestUpdate(t *testing.T) {
 	c := New(ctr)
 	tt := []struct {
 		name          string
-		object        Person
-		expectedCount Count
+		object        grpcproto.Person
+		expectedCount grpcproto.Count
 		expectedError error
 		err           string
 	}{
 		{
 			name: "Success request",
-			object: Person{
+			object: grpcproto.Person{
 				DocumentID:  "",
 				Name:        "firstName",
 				LastName:    "secondName",
@@ -331,15 +332,15 @@ func TestUpdate(t *testing.T) {
 				Email:       "",
 				YearOfBirth: 1980,
 			},
-			expectedCount: Count{
+			expectedCount: grpcproto.Count{
 				Count: 1,
 			},
 			expectedError: nil,
 		},
 		{
 			name:   "Wrong request",
-			object: Person{},
-			expectedCount: Count{
+			object: grpcproto.Person{},
+			expectedCount: grpcproto.Count{
 				Count: 0,
 			},
 			expectedError: errors.New("error"),
@@ -350,7 +351,7 @@ func TestUpdate(t *testing.T) {
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			ctr.On("Update", mock.Anything, tc.object.transmit()).Return(int(tc.expectedCount.GetCount()), tc.expectedError).Once()
+			ctr.On("Update", mock.Anything, transmit(&tc.object)).Return(int(tc.expectedCount.GetCount()), tc.expectedError).Once()
 			p, err := c.Update(context.Background(), &tc.object)
 			if tc.err != "" {
 				assert.Equal(t,
@@ -377,26 +378,26 @@ func TestRemove(t *testing.T) {
 
 	tt := []struct {
 		name          string
-		object        Person
-		objID         *ObjectID
-		expectedCount Count
+		object        grpcproto.Person
+		objID         *grpcproto.ObjectID
+		expectedCount grpcproto.Count
 		expectedError error
 		err           string
 	}{
 		{
 			name: "Success request",
-			objID: &ObjectID{
+			objID: &grpcproto.ObjectID{
 				ObjectID: oid,
 			},
-			expectedCount: Count{
+			expectedCount: grpcproto.Count{
 				Count: 1,
 			},
 			expectedError: nil,
 			err:           "",
 		}, {
 			name:  "Wrong request",
-			objID: &ObjectID{},
-			expectedCount: Count{
+			objID: &grpcproto.ObjectID{},
+			expectedCount: grpcproto.Count{
 				Count: 1,
 			},
 			expectedError: errors.New("error"),

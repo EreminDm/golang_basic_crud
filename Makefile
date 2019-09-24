@@ -25,4 +25,4 @@ proto:
 	sudo tar -xzvf protobuf-all-3.6.1.tar.gz
 	sudo pushd protobuf-3.6.1 && ./configure --prefix=/usr && make && sudo make install && popd
 	cd ~/go/src/github.com/EreminDm/golang_basic_crud/net/grpc
-	sudo protoc -I . grpc.proto --go_out=plugins=grpc:.
+	sudo protoc -I ./net/grpc/proto grpc.proto --go_out=plugins=grpc:./net/grpc/proto
