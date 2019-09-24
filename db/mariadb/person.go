@@ -60,7 +60,7 @@ func (m MariaDB) One(ctx context.Context, id string) (entity.PersonalData, error
 // Insert is a function which adding data to database.
 func (m MariaDB) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
 	p := receive(document)
-	sqlQuery := "INSERT INTO person (id, name, last_name, phone, email, year_od_birth ) VALUES (?,?,?,?,?,?);"
+	sqlQuery := "INSERT INTO person (id, name, last_name, phone, email, year_od_birth ) VALUES (?,?,?,?,?,?)"
 	_, err := m.Person.ExecContext(ctx, sqlQuery, p.ID, p.Name, p.LastName, p.Phone, p.Email, p.YearOfBirth)
 	if err != nil {
 		return entity.PersonalData{}, errors.Wrap(err, "could not exec query statement")
