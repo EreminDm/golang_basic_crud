@@ -17,6 +17,8 @@ const (
 func TestConnect(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	wrongctx, wrongcancel := context.WithTimeout(context.Background(), 2*time.Second)
+	wrongcancel()
 	expected := &MariaDB{}
 
 	tt := []struct {
@@ -32,6 +34,13 @@ func TestConnect(t *testing.T) {
 			connectionURI: conURI,
 			dbName:        dbName,
 			err:           "",
+		},
+		{
+			name:          "Faild context",
+			context:       wrongctx,
+			connectionURI: conURI,
+			dbName:        dbName,
+			err:           "could not get stable connection to databases: context canceled",
 		},
 	}
 	for _, tc := range tt {
