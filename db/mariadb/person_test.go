@@ -104,7 +104,7 @@ func TestInsert(t *testing.T) {
 	defer cancel()
 	wrongCTX, wCanel := context.WithCancel(context.Background())
 	wCanel()
-	m, err := Connect(ctx, conURI, dbName)
+	m, err := Connect(ctx, conURI, dbName, 1, 1)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -169,7 +169,7 @@ func TestAll(t *testing.T) {
 	wrongCTX, cancelCTX := context.WithCancel(context.Background())
 	cancelCTX()
 
-	m, err := Connect(ctx, conURI, dbName)
+	m, err := Connect(ctx, conURI, dbName, 1, 1)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -246,7 +246,7 @@ func TestOne(t *testing.T) {
 	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	m, err := Connect(ctx, conURI, dbName)
+	m, err := Connect(ctx, conURI, dbName, 1, 1)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
@@ -324,7 +324,7 @@ func TestRemove(t *testing.T) {
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
 	wrcancel()
-	m, err := Connect(ctx, conURI, dbName)
+	m, err := Connect(ctx, conURI, dbName, 1, 1)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
@@ -427,7 +427,7 @@ func TestUpdate(t *testing.T) {
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
 	wrcancel()
-	m, err := Connect(ctx, conURI, dbName)
+	m, err := Connect(ctx, conURI, dbName, 1, 1)
 	assert.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string

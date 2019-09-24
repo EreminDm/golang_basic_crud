@@ -26,6 +26,8 @@ func TestConnect(t *testing.T) {
 		context       context.Context
 		connectionURI string
 		dbName        string
+		maxIdle       int
+		maxOpen       int
 		err           string
 	}{
 		{
@@ -33,6 +35,8 @@ func TestConnect(t *testing.T) {
 			context:       ctx,
 			connectionURI: conURI,
 			dbName:        dbName,
+			maxIdle:       1,
+			maxOpen:       1,
 			err:           "",
 		},
 		{
@@ -40,6 +44,8 @@ func TestConnect(t *testing.T) {
 			context:       wrongctx,
 			connectionURI: conURI,
 			dbName:        dbName,
+			maxIdle:       1,
+			maxOpen:       1,
 			err:           "could not get stable connection to databases: context canceled",
 		},
 	}
@@ -47,7 +53,7 @@ func TestConnect(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 
-			db, err := Connect(tc.context, tc.connectionURI, tc.dbName)
+			db, err := Connect(tc.context, tc.connectionURI, tc.dbName, tc.maxIdle, tc.maxOpen)
 			if tc.err != "" {
 				assert.Equal(
 					t,

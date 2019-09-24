@@ -38,7 +38,7 @@ func main() {
 
 	case "mariadb":
 		// returns mariadb collection.
-		m, err := mariadb.Connect(ctx, connURI, dbName)
+		m, err := mariadb.Connect(ctx, connURI, dbName, 3, 30)
 		if err != nil {
 			log.Fatalf(`couldn't connect to database: %v`, err)
 		}

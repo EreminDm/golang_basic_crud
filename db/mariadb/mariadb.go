@@ -18,8 +18,7 @@ type MariaDB struct {
 // Connect returns mySQL database connection information,
 // do not forget close db connection,
 // dataSourcename example: "b_username:db_password@protocol(address:port_num)".
-func Connect(ctx context.Context, dataSourceName string, dbname string) (*MariaDB, error) {
-
+func Connect(ctx context.Context, dataSourceName string, dbname string, maxidleconn, maxopenconn int) (*MariaDB, error) {
 	db, err := sql.Open("mysql", dataSourceName+"/"+dbname)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not open mysql connection")
@@ -29,8 +28,8 @@ func Connect(ctx context.Context, dataSourceName string, dbname string) (*MariaD
 		return nil, errors.Wrap(err, "could not get stable connection to databases")
 	}
 	db.SetConnMaxLifetime(time.Minute)
-	db.SetMaxIdleConns(3)
-	db.SetMaxOpenConns(30)
+	db.SetMaxIdleConns(maxidleconn)
+	db.SetMaxOpenConns(maxopenconn)
 
 	return &MariaDB{
 		Person: db,
