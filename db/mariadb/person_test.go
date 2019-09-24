@@ -8,6 +8,7 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRecive(t *testing.T) {
@@ -99,7 +100,7 @@ func TestInsert(t *testing.T) {
 	wrongCTX, wCanel := context.WithCancel(context.Background())
 	wCanel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *MariaDB
@@ -163,7 +164,7 @@ func TestAll(t *testing.T) {
 	cancelCTX()
 
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *MariaDB
@@ -239,7 +240,7 @@ func TestOne(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *MariaDB
@@ -316,7 +317,7 @@ func TestRemove(t *testing.T) {
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
 	wrcancel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
 		collection       *MariaDB
@@ -418,7 +419,7 @@ func TestUpdate(t *testing.T) {
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
 	wrcancel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
 		collection       *MariaDB
