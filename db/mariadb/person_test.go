@@ -8,12 +8,9 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestRecive(t *testing.T) {
-	oid := primitive.NewObjectID()
-
 	tt := []struct {
 		name      string
 		enterT    entity.PersonalData
@@ -22,7 +19,7 @@ func TestRecive(t *testing.T) {
 		{
 			name: "Recive data from entity package type to mongo",
 			enterT: entity.PersonalData{
-				DocumentID:  oid.Hex(),
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -30,7 +27,7 @@ func TestRecive(t *testing.T) {
 				YearOfBirth: 1999,
 			},
 			expectedT: personalData{
-				ID:          oid.Hex(),
+				ID:          "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -56,8 +53,6 @@ func TestRecive(t *testing.T) {
 }
 
 func TestTransmit(t *testing.T) {
-	oid := primitive.NewObjectID()
-
 	tt := []struct {
 		name      string
 		enterT    personalData
@@ -66,7 +61,7 @@ func TestTransmit(t *testing.T) {
 		{
 			name: "transmit data from mongo package type to entity",
 			enterT: personalData{
-				ID:          oid.Hex(),
+				ID:          "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -74,7 +69,7 @@ func TestTransmit(t *testing.T) {
 				YearOfBirth: 1999,
 			},
 			expectedT: entity.PersonalData{
-				DocumentID:  oid.Hex(),
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -99,7 +94,6 @@ func TestTransmit(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	wrongCTX, wCanel := context.WithCancel(context.Background())
@@ -117,7 +111,7 @@ func TestInsert(t *testing.T) {
 			name:       "Success Insert",
 			collection: m,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -131,7 +125,7 @@ func TestInsert(t *testing.T) {
 			name:       "Wrong Insert canceled context",
 			collection: m,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -163,7 +157,6 @@ func TestInsert(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	wrongCTX, cancelCTX := context.WithCancel(context.Background())
@@ -184,7 +177,7 @@ func TestAll(t *testing.T) {
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -199,7 +192,7 @@ func TestAll(t *testing.T) {
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -243,7 +236,7 @@ func TestAll(t *testing.T) {
 }
 
 func TestOne(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, conURI, dbName, 1, 1)
@@ -262,14 +255,14 @@ func TestOne(t *testing.T) {
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
 				Email:       "test@test.test",
 				YearOfBirth: 1999,
 			},
-			oid: oid,
+			oid: "KGPFOFOGB",
 			ctx: ctx,
 			err: "",
 		},
@@ -278,7 +271,7 @@ func TestOne(t *testing.T) {
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -319,7 +312,7 @@ func TestOne(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -340,14 +333,14 @@ func TestRemove(t *testing.T) {
 			collection:       m,
 			expectedResponce: 1,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
 				Email:       "test@test.test",
 				YearOfBirth: 1999,
 			},
-			removingOID: oid,
+			removingOID: "KGPFOFOGB",
 			ctx:         ctx,
 			err:         "",
 		},
@@ -356,14 +349,14 @@ func TestRemove(t *testing.T) {
 			collection:       m,
 			expectedResponce: 0,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
 				Email:       "test@test.test",
 				YearOfBirth: 1999,
 			},
-			removingOID: primitive.NewObjectID().Hex(),
+			removingOID: "IJOGSDIOJGDSIOD",
 			ctx:         ctx,
 			err:         "",
 		},
@@ -372,14 +365,14 @@ func TestRemove(t *testing.T) {
 			collection:       m,
 			expectedResponce: 0,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
 				Email:       "test@test.test",
 				YearOfBirth: 1999,
 			},
-			removingOID: primitive.NewObjectID().Hex(),
+			removingOID: "KOIFIJFJIFSA",
 			ctx:         wrongctx,
 			err:         "could not remove data: context canceled",
 		},
@@ -422,7 +415,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	oid := primitive.NewObjectID().Hex()
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	wrongctx, wrcancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -442,7 +435,7 @@ func TestUpdate(t *testing.T) {
 			name:       "Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -450,7 +443,7 @@ func TestUpdate(t *testing.T) {
 				YearOfBirth: 1999,
 			},
 			updateT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "FirstName",
 				LastName:    "LastName",
 				Phone:       "999999999",
@@ -465,7 +458,7 @@ func TestUpdate(t *testing.T) {
 			name:       "Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
@@ -488,7 +481,7 @@ func TestUpdate(t *testing.T) {
 			name:       "Faild update document in database",
 			collection: m,
 			enterT: entity.PersonalData{
-				DocumentID:  oid,
+				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
 				LastName:    "LName",
 				Phone:       "1235486",
