@@ -15,7 +15,7 @@ addons:
 
 before_script:
   - go get -v github.com/rubenv/sql-migrate/...
-  - mysql -u root -e "create user test@localhost identified by 'test'; grant all on *.* to test@localhost;"
+  - sudo mysql -u root -e "create user test@localhost identified by 'test'; grant all on *.* to test@localhost;"
   - make mysql
   # - sudo mysql < db/mariadb/migrations/up/baseline.sql
   - sleep 15
