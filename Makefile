@@ -33,8 +33,8 @@ mysql:
 
 	# Tweak PATH for Travis
 	export PATH=$PATH:$HOME/gopath/bin
-	export MYSQL_USER=root
-	export DATABASE_NAME=test_env
+	export MYSQL_USER=test
+	export DATABASE_NAME=person
 	export MYSQL_PASSWORD=test
 	export MYSQL_HOST=localhost
 	export MYSQL_PORT=3306
