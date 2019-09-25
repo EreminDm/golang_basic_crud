@@ -10,8 +10,11 @@ services:
 addons:
   mariadb: "10.4"
   
-# before_install:
+before_install:
 #   - bash install-protobuf.sh
+  - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('123123') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
+  - sudo mysql_upgrade -u root -p 123123
+  - sudo service mysql restart
 
 before_script:
   - go get -v github.com/rubenv/sql-migrate/...
