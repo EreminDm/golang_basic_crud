@@ -3,13 +3,15 @@ language: go
 go:
 - "1.13"
 
+dist: precise
+
 services:
   - mongodb
   - mysql
 
 addons:
   mariadb: "10.4"
-  
+
 # before_install:
 #   - bash install-protobuf.sh
 
