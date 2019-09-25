@@ -18,14 +18,12 @@ addons:
 
 before_script:
   - go get -v github.com/rubenv/sql-migrate/...
-  #- sudo mysql -u root -e "create user root@% identified by 'test'; grant all on *.* to root@%;"
   - make mysql
-  # - sudo mysql < db/mariadb/migrations/up/baseline.sql
   - sleep 15
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
   - go install github.com/mattn/goveralls
   # - go get -u github.com/golang/protobuf/protoc-gen-go 
-  #- protoc -I ./net/grpc/proto grpc.proto --go_out=plugins=grpc:./net/grpc/proto
+
 
 script:
   - golangci-lint run

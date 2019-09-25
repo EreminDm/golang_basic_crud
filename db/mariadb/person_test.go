@@ -296,6 +296,8 @@ func TestOne(t *testing.T) {
 					err.Error(),
 					fmt.Sprintf("errors not equal; want %v\n got: %v", tc.err, err.Error()),
 				)
+				_, err = tc.collection.Remove(ctx, tc.enterT.DocumentID)
+				assert.NoError(t, err, "could not remove document from database")
 				return
 			}
 			assert.NoError(t, err, "could not select data from database")

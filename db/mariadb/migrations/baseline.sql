@@ -7,7 +7,7 @@ USE `person`;
 
 -- Dumping structure for table person.person
 CREATE TABLE IF NOT EXISTS `person` (
-  `id` binary(50) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+  `id` char(50) NOT NULL,
   `name` char(50) NOT NULL,
   `last_name` char(50) NOT NULL,
   `phone` char(50) DEFAULT NULL,
