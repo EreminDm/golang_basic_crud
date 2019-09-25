@@ -332,7 +332,7 @@ func TestRemove(t *testing.T) {
 		{
 			name:             "Remove document from database",
 			collection:       m,
-			expectedResponce: 2,
+			expectedResponce: 1,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
