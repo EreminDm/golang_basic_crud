@@ -38,5 +38,5 @@ mysql:
 	
 	set -ex
 
-	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
-	sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
+	sudo sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
+	sudo sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
