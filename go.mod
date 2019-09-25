@@ -36,5 +36,6 @@ require (
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	go.mongodb.org/mongo-driver v1.1.1
+	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c // indirect
 	google.golang.org/grpc v1.23.1
 )

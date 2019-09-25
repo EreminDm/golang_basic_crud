@@ -5,7 +5,7 @@ GOTEST=$(GOCMD) test
 GOLANGCI=golangci-lint
 
 .PHONY: all
-all: proto test lint  
+all: proto test lint mysql
 
 .PHONY: test
 test:
@@ -26,3 +26,20 @@ proto:
 	sudo pushd protobuf-3.6.1 && ./configure --prefix=/usr && make && sudo make install && popd
 	cd ~/go/src/github.com/EreminDm/golang_basic_crud/net/grpc
 	sudo protoc -I ./net/grpc/proto grpc.proto --go_out=plugins=grpc:./net/grpc/proto
+
+.PHONY: mysql
+proto:
+	#!/bin/bash
+
+	# Tweak PATH for Travis
+	export PATH=$PATH:$HOME/gopath/bin
+	export MYSQL_USER=root
+	export DATABASE_NAME=test_env
+	export MYSQL_PASSWORD=test
+
+	OPTIONS="-config=db/mariadb/dbconfig.yml -env mysql"
+
+	set -ex
+
+	sql-migrate status $OPTIONS
+	sql-migrate up $OPTIONS

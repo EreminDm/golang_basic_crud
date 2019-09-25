@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	// Register mysql package
+	// Register mysql package.
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 )

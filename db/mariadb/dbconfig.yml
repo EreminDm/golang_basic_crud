@@ -1,0 +1,4 @@
+mysql:
+    dialect: mysql
+    datasource: test@/person?parseTime=true
+    dir: db/mariadb/migrations
