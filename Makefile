@@ -43,5 +43,7 @@ mysql:
 
 	set -ex
 
+	pwd
+	ls ./db/mariadb/
 	sql-migrate status $OPTIONS
 	sql-migrate up $OPTIONS
