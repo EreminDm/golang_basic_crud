@@ -30,7 +30,7 @@ proto:
 .PHONY: mysql
 mysql:
 	#!/bin/bash
-	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+	# echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
 	sudo mysql -e "CREATE DATABASE IF NOT EXISTS person;" -u root
 
 	# Tweak PATH for Travis
