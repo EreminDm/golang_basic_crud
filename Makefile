@@ -36,6 +36,8 @@ proto:
 	export MYSQL_USER=root
 	export DATABASE_NAME=test_env
 	export MYSQL_PASSWORD=test
+	export MYSQL_HOST=localhost
+	export MYSQL_PORT=3306
 
 	OPTIONS="-config=db/mariadb/dbconfig.yml -env mysql"
 
