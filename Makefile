@@ -30,10 +30,8 @@ proto:
 .PHONY: mysql
 mysql:
 	#!/bin/bash
-	sudo mysql -u root -e "CREATE USER 'test'@'%' IDENTIFIED BY 'test';"
-	sudo mysql -u root -e "GRANT SHOW DATABASES, SELECT, PROCESS, EXECUTE, ALTER ROUTINE, ALTER, SHOW VIEW, CREATE TABLESPACE, CREATE ROUTINE, CREATE, DELETE, CREATE VIEW, CREATE TEMPORARY TABLES, INDEX, EVENT, DROP, TRIGGER, REFERENCES, INSERT, FILE, CREATE USER, UPDATE, RELOAD, LOCK TABLES, SHUTDOWN, REPLICATION SLAVE, REPLICATION CLIENT, SUPER ON *.* TO 'test'@'%';"
-	sudo mysql -u root -e "FLUSH PRIVILEGES;"
-	sudo mysql -e "CREATE DATABASE IF NOT EXISTS person;" -uroot
+	echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
+	sudo mysql -e "CREATE DATABASE IF NOT EXISTS person;" -u root
 
 	# Tweak PATH for Travis
 	export PATH=$PATH:$HOME/gopath/bin
