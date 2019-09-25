@@ -131,20 +131,6 @@ func TestInsert(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Success Insert",
-			collection: m,
-			enterT: entity.PersonalData{
-				DocumentID:  oid,
-				Name:        "Name",
-				LastName:    "LName",
-				Phone:       "1235486",
-				Email:       "test@test.test",
-				YearOfBirth: 1234,
-			},
-			ctx: ctx,
-			err: "",
-		},
-		{
 			name:       "Wrong Insert oid is not valid",
 			collection: m,
 			enterT: entity.PersonalData{
@@ -173,6 +159,20 @@ func TestInsert(t *testing.T) {
 			},
 			ctx: wrongCTX,
 			err: "could not add document(s) in database: context canceled",
+		},
+		{
+			name:       "Success Insert",
+			collection: m,
+			enterT: entity.PersonalData{
+				DocumentID:  oid,
+				Name:        "Name",
+				LastName:    "LName",
+				Phone:       "1235486",
+				Email:       "test@test.test",
+				YearOfBirth: 1999,
+			},
+			ctx: ctx,
+			err: "",
 		},
 	}
 
