@@ -31,7 +31,7 @@ proto:
 mysql:
 	#!/bin/bash
 	# echo "USE mysql;\nUPDATE user SET password=PASSWORD('root') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
-	sudo mysql -e "CREATE DATABASE IF NOT EXISTS person;" -u test:test
+	sudo mysql -e "CREATE DATABASE IF NOT EXISTS person;" -u test
 
 	# Tweak PATH for Travis
 	export PATH=$PATH:$HOME/gopath/bin
