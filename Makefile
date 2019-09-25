@@ -39,11 +39,7 @@ mysql:
 	export MYSQL_HOST=localhost
 	export MYSQL_PORT=3306
 
-	OPTIONS="-config=./db/mariadb/dbconfig.yml -env mysql"
-
 	set -ex
 
-	pwd
-	ls ./db/mariadb/
-	sql-migrate status $OPTIONS
-	sql-migrate up $OPTIONS
+	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
+	sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
