@@ -14,7 +14,7 @@ addons:
 #   - bash install-protobuf.sh
 
 before_script:
-  - go get -tags 'v4.6.2' -u github.com/golang-migrate/migrate/cmd/migrate 
+  - go get -v github.com/rubenv/sql-migrate/...
   - make mysql
   # - sudo mysql < db/mariadb/migrations/up/baseline.sql
   - sleep 15
