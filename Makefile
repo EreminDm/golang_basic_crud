@@ -37,12 +37,7 @@ mysql:
 
 	# Tweak PATH for Travis
 	export PATH=$PATH:$HOME/gopath/bin
-	export MYSQL_USER=root
-	export DATABASE_NAME=person
-	export MYSQL_PASSWORD=
-	export MYSQL_HOST=localhost
-	export MYSQL_PORT=3306
-
+	
 	set -ex
 
 	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
