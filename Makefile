@@ -28,7 +28,7 @@ proto:
 	sudo protoc -I ./net/grpc/proto grpc.proto --go_out=plugins=grpc:./net/grpc/proto
 
 .PHONY: mysql
-proto:
+mysql:
 	#!/bin/bash
 
 	# Tweak PATH for Travis
