@@ -42,6 +42,12 @@ func TestNewHandler(t *testing.T) {
 	}
 }
 
+type errReader int
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+
 func TestReceive(t *testing.T) {
 	tt := []struct {
 		name      string
@@ -369,6 +375,15 @@ func TestUpdate(t *testing.T) {
 			status:        400,
 			err:           "invalid character 'e' looking for beginning of value",
 		},
+		{
+			name:          "HTTP -> 123",
+			method:        "PUT",
+			body:          []byte("e"),
+			object:        personalData{},
+			expectedError: nil,
+			status:        400,
+			err:           "invalid character 'e' looking for beginning of value",
+		},
 	}
 
 	for _, tc := range tt {
@@ -383,6 +398,12 @@ func TestUpdate(t *testing.T) {
 					err,
 					fmt.Sprintf("couldn't marshal request body: %v", err),
 				)
+				return
+			}
+			if tc.name != "HTTP -> 123" {
+
+				_, err := http.NewRequest(tc.method, "http://localhost:8000/", errReader(0))
+				assert.Equal(t, " 1", err.Error(), "READ BOODY")
 			}
 
 			req, err := http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
