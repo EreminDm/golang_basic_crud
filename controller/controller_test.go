@@ -18,38 +18,29 @@ type DBMockedObject struct {
 }
 
 func (m *DBMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
-	fmt.Println("Mocked insert function")
-	fmt.Printf("Document passed in: %v\n", document)
 	args := m.Called(ctx, document)
 	return args.Get(0).(entity.PersonalData), args.Error(1)
 }
 
 func (m *DBMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
-	fmt.Println("Mocked one function")
-	fmt.Printf("ID passed in: %s\n", id)
 	args := m.Called(ctx, id)
 	return args.Get(0).(entity.PersonalData), args.Error(1)
 }
 
 // All returns an array of personal information.
 func (m *DBMockedObject) All(ctx context.Context) ([]entity.PersonalData, error) {
-	fmt.Println("Mocked all function")
 	args := m.Called(ctx)
 	return args.Get(0).([]entity.PersonalData), args.Error(1)
 }
 
 // Update changes information in collection.
 func (m *DBMockedObject) Update(ctx context.Context, document entity.PersonalData) (int64, error) {
-	fmt.Println("Mocked update function")
-	fmt.Printf("Document passed in: %v\n", document)
 	args := m.Called(ctx, document)
 	return int64(args.Int(0)), args.Error(1)
 }
 
 // Remove deletes information from collection.
 func (m *DBMockedObject) Remove(ctx context.Context, id string) (int64, error) {
-	fmt.Println("Mocked remove function")
-	fmt.Printf("ID passed in: %s\n", id)
 	args := m.Called(ctx, id)
 	return int64(1), args.Error(1)
 }
@@ -63,7 +54,7 @@ func TestNew(t *testing.T) {
 		provider controller.DBProvider
 		equal    bool
 	}{
-		{name: "New controller", provider: cp, equal: true},
+		{name: "New midleware controller", provider: cp, equal: true},
 	}
 	for _, tc := range tt {
 		tc := tc
@@ -88,7 +79,7 @@ func TestInsert(t *testing.T) {
 		err      error
 	}{
 		{
-			name:    "Insert controller",
+			name:    "Controller -> Insert",
 			context: ctx,
 			document: entity.PersonalData{
 				DocumentID:  primitive.NewObjectID().Hex(),
@@ -125,7 +116,7 @@ func TestOne(t *testing.T) {
 		err      error
 	}{
 		{
-			name:    "One controller",
+			name:    "Controller -> One",
 			context: ctx,
 			expected: entity.PersonalData{
 				DocumentID:  oid,
@@ -168,7 +159,7 @@ func TestAll(t *testing.T) {
 		err      error
 	}{
 		{
-			name:    "All controller",
+			name:    "Controller -> All",
 			context: ctx,
 			expected: []entity.PersonalData{
 				{
@@ -214,7 +205,7 @@ func TestUpdate(t *testing.T) {
 		err          error
 	}{
 		{
-			name:    "Update controller",
+			name:    "Controller -> Update",
 			context: ctx,
 			newDocument: entity.PersonalData{
 				DocumentID:  oid,
@@ -254,7 +245,7 @@ func TestRemove(t *testing.T) {
 		err         error
 	}{
 		{
-			name:        "Remove controller",
+			name:        "Controller -> Remove",
 			context:     ctx,
 			oid:         primitive.NewObjectID().Hex(),
 			removeCount: 1,
