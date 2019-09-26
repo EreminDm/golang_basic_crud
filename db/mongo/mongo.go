@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -27,7 +28,7 @@ func Connect(ctx context.Context, connectionURI, databaseName string) (*Mongodat
 	clientOption := options.Client().ApplyURI("mongodb://" + connectionURI)
 	client, err := mongo.Connect(ctx, clientOption)
 	if err != nil {
-		return nil, errors.Wrap(err, "couldn't connect to database using uri")
+		return nil, errors.Wrap(err, fmt.Sprintf("couldn't connect to database using uri %s", connectionURI))
 	}
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {

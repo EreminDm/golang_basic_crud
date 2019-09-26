@@ -12,10 +12,6 @@ services:
 addons:
   mariadb: "10.4"
 
-# before_install:
-#   - bash install-protobuf.sh
-
-
 before_script:
   - go get -v github.com/rubenv/sql-migrate/...
   - make mysql
