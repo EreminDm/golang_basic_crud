@@ -18,7 +18,7 @@ func TestRecive(t *testing.T) {
 		expectedT personalData
 	}{
 		{
-			name: "Recive data from entity package type to mongo",
+			name: "MariaDB -> Recive data from entity package type to mongo",
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
 				Name:        "Name",
@@ -60,7 +60,7 @@ func TestTransmit(t *testing.T) {
 		expectedT entity.PersonalData
 	}{
 		{
-			name: "transmit data from mongo package type to entity",
+			name: "MariaDB -> Transmit data from mongo package type to entity",
 			enterT: personalData{
 				ID:          "KGPFOFOGB",
 				Name:        "Name",
@@ -109,7 +109,7 @@ func TestInsert(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Success Insert",
+			name:       "MariaDB -> Success Insert",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
@@ -123,7 +123,7 @@ func TestInsert(t *testing.T) {
 			err: "",
 		},
 		{
-			name:       "Wrong Insert canceled context",
+			name:       "MariaDB -> Wrong Insert canceled context",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
@@ -174,7 +174,7 @@ func TestAll(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Select all without errors",
+			name:       "MariaDB -> Select all without errors",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -189,7 +189,7 @@ func TestAll(t *testing.T) {
 			err: "",
 		},
 		{
-			name:       "Select all with wrong context",
+			name:       "MariaDB -> Select all with wrong context",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -251,7 +251,7 @@ func TestOne(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Select one testing",
+			name:       "MariaDB -> Select one testing",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -267,7 +267,7 @@ func TestOne(t *testing.T) {
 			err: "",
 		},
 		{
-			name:       "Wrong Select one testing",
+			name:       "MariaDB -> Wrong Select one testing",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -330,7 +330,7 @@ func TestRemove(t *testing.T) {
 		err              string
 	}{
 		{
-			name:             "Remove document from database",
+			name:             "MariaDB -> Remove document from database",
 			collection:       m,
 			expectedResponce: 1,
 			enterT: entity.PersonalData{
@@ -346,7 +346,7 @@ func TestRemove(t *testing.T) {
 			err:         "",
 		},
 		{
-			name:             "Fail remove document from database",
+			name:             "MariaDB -> Fail remove document from database",
 			collection:       m,
 			expectedResponce: 0,
 			enterT: entity.PersonalData{
@@ -362,7 +362,7 @@ func TestRemove(t *testing.T) {
 			err:         "",
 		},
 		{
-			name:             "wrong context -> failed remove document from database",
+			name:             "MariaDB -> wrong context -> failed remove document from database",
 			collection:       m,
 			expectedResponce: 0,
 			enterT: entity.PersonalData{
@@ -432,7 +432,7 @@ func TestUpdate(t *testing.T) {
 		err              string
 	}{
 		{
-			name:       "Update Document in database",
+			name:       "MariaDB -> Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
@@ -455,7 +455,7 @@ func TestUpdate(t *testing.T) {
 			err:              "",
 		},
 		{
-			name:       "Update Document in database",
+			name:       "MariaDB -> Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
@@ -478,7 +478,7 @@ func TestUpdate(t *testing.T) {
 			err:              "",
 		},
 		{
-			name:       "Faild update document in database",
+			name:       "MariaDB -> Faild update document in database",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "KGPFOFOGB",
