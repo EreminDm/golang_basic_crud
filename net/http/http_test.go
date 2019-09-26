@@ -375,15 +375,6 @@ func TestUpdate(t *testing.T) {
 			status:        400,
 			err:           "invalid character 'e' looking for beginning of value",
 		},
-		{
-			name:          "HTTP -> 123",
-			method:        "PUT",
-			body:          []byte("e"),
-			object:        personalData{},
-			expectedError: nil,
-			status:        400,
-			err:           "invalid character 'e' looking for beginning of value",
-		},
 	}
 
 	for _, tc := range tt {
