@@ -220,23 +220,18 @@ type controllerMockedObject struct {
 
 // Insert adds a personal information.
 func (m *controllerMockedObject) Insert(ctx context.Context, document entity.PersonalData) (entity.PersonalData, error) {
-	fmt.Println("Mocked insert function")
-	fmt.Printf("Document passed in: %v\n", document)
 	args := m.Called(ctx, document)
 	return args.Get(0).(entity.PersonalData), args.Error(1)
 }
 
 // One returns personal information.
 func (m *controllerMockedObject) One(ctx context.Context, id string) (entity.PersonalData, error) {
-	fmt.Println("Mocked one function")
-	fmt.Printf("ID passed in: %s\n", id)
 	args := m.Called(ctx, id)
 	return args.Get(0).(entity.PersonalData), args.Error(1)
 }
 
 // All returns an array of personal information.
 func (m *controllerMockedObject) All(ctx context.Context) ([]entity.PersonalData, error) {
-	fmt.Println("Mocked all function")
 	args := m.Called(ctx)
 	return args.Get(0).([]entity.PersonalData), args.Error(1)
 }
@@ -249,8 +244,6 @@ func (m *controllerMockedObject) Update(ctx context.Context, document entity.Per
 
 // Remove deletes information from collection.
 func (m *controllerMockedObject) Remove(ctx context.Context, id string) (int64, error) {
-	fmt.Println("Mocked remove function")
-	fmt.Printf("ID passed in: %s\n", id)
 	args := m.Called(ctx, id)
 	return int64(1), args.Error(1)
 }
@@ -292,6 +285,15 @@ func TestInsert(t *testing.T) {
 			status:        400,
 			err:           "invalid character 'e' looking for beginning of value",
 		},
+		{
+			name:          "HTTP -> read body error",
+			method:        "POST",
+			body:          []byte("e"),
+			object:        personalData{},
+			expectedError: nil,
+			status:        400,
+			err:           "could not read request body\n",
+		},
 	}
 
 	for _, tc := range tt {
@@ -307,12 +309,16 @@ func TestInsert(t *testing.T) {
 					fmt.Sprintf("couldn't marshal request body: %v", err),
 				)
 			}
-
-			req, err := http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
-			assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+			var req *http.Request
+			if tc.name == "HTTP -> read body error" {
+				req = httptest.NewRequest(tc.method, "http://localhost:8000/", errReader(0))
+			} else {
+				req, err = http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
+				assert.NoError(t, err, fmt.Sprintf("couldn't create requset: %v", err))
+			}
 			rec := httptest.NewRecorder()
 
-			ctr.On("Insert", mock.Anything, tc.object.transmit()).Return(tc.expectedObject, tc.expectedError).Once()
+			ctr.On("Insert", mock.Anything, tc.object.transmit()).Return(tc.expectedObject, tc.expectedError)
 			c.ServeHTTP(rec, req)
 			res := rec.Result()
 			defer res.Body.Close()
@@ -323,6 +329,17 @@ func TestInsert(t *testing.T) {
 				bString := string(b)
 				assert.Equal(t,
 					tc.err,
+					bString,
+					"not equals",
+				)
+			}
+
+			if tc.expectedError != nil {
+				b, err := ioutil.ReadAll(res.Body)
+				assert.NoError(t, err, fmt.Sprintf("could not read response body: %v", err))
+				bString := string(b)
+				assert.Equal(t,
+					tc.expectedError,
 					bString,
 					"not equals",
 				)
@@ -351,7 +368,7 @@ func TestUpdate(t *testing.T) {
 		err           string
 	}{
 		{
-			name:   "Success request",
+			name:   "HTTP -> Success request",
 			method: "PUT",
 			body:   nil,
 			object: personalData{
@@ -367,7 +384,7 @@ func TestUpdate(t *testing.T) {
 			status:        201,
 		},
 		{
-			name:          "Wrong request",
+			name:          "HTTP -> Wrong request",
 			method:        "PUT",
 			body:          []byte("e"),
 			object:        personalData{},
@@ -377,7 +394,7 @@ func TestUpdate(t *testing.T) {
 			err:           "invalid character 'e' looking for beginning of value",
 		},
 		{
-			name:          "HTTP -> 123",
+			name:          "HTTP -> read body error",
 			method:        "PUT",
 			body:          []byte("e"),
 			object:        personalData{},
@@ -403,7 +420,7 @@ func TestUpdate(t *testing.T) {
 			}
 			var req *http.Request
 
-			if tc.name == "HTTP -> 123" {
+			if tc.name == "HTTP -> read body error" {
 				req = httptest.NewRequest(tc.method, "http://localhost:8000/", errReader(0))
 			} else {
 				req, err = http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
@@ -451,22 +468,20 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	var expectedObject []entity.PersonalData
 	ctr := new(controllerMockedObject)
 	c := New(ctr)
 	server := httptest.NewServer(c)
 	defer server.Close()
 	tt := []struct {
-		name          string
-		method        string
-		schema        string
-		body          []byte
-		object        personalData
-		status        int
-		expectedError error
+		name           string
+		schema         string
+		object         personalData
+		status         int
+		expectedObject []entity.PersonalData
+		expectedError  error
+		err            string
 	}{
 		{name: "get request",
-			method: "GET",
 			schema: `{
 				"type":"array",
 				"items":{
@@ -483,7 +498,6 @@ func TestList(t *testing.T) {
 				}	 
 		 }
 		 `,
-			body: nil,
 			object: personalData{
 				DocumentID:  "",
 				Name:        "firstName",
@@ -494,14 +508,29 @@ func TestList(t *testing.T) {
 			},
 			status: http.StatusOK,
 		},
+		// {
+		// 	name:           "WRONG reques",
+		// 	status:         http.StatusInternalServerError,
+		// 	expectedObject: nil,
+		// 	expectedError:  errors.New("404 Not Found"),
+		// 	err:            "404 Not Found",
+		// },
 	}
 
 	for _, tc := range tt {
 		tc := tc
+		// create httpexpect instance
+		ctr.On("All", mock.Anything).Return(tc.expectedObject, tc.expectedError)
 		t.Run(tc.name, func(t *testing.T) {
-			// create httpexpect instance
-			ctr.On("All", mock.Anything).Return(expectedObject, tc.expectedError)
+
 			e := httpexpect.New(t, server.URL)
+			if tc.err != "" {
+				res := e.GET("/").
+					Expect().
+					Status(tc.status)
+				res.Body().Equal(tc.err)
+				return
+			}
 			e.GET("/").
 				Expect().
 				Status(http.StatusOK).JSON().Array().Empty()
