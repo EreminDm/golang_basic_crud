@@ -6,8 +6,8 @@ go:
 dist: precise
 
 services:
-  - mongodb
   - mysql
+  - mongodb
 
 addons:
   mariadb: "10.4"
