@@ -8,6 +8,7 @@ import (
 
 	"github.com/EreminDm/golang_basic_crud/entity"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -23,7 +24,7 @@ func TestRecive(t *testing.T) {
 		err       error
 	}{
 		{
-			name: "Recive data from entity package type to mongo",
+			name: "Mongo -> Recive data from entity package type to mongo",
 			enterT: entity.PersonalData{
 				DocumentID:  oid.Hex(),
 				Name:        "Name",
@@ -81,7 +82,7 @@ func TestTransmit(t *testing.T) {
 		expectedT entity.PersonalData
 	}{
 		{
-			name: "transmit data from mongo package type to entity",
+			name: "Mongo -> Transmit data from mongo package type to entity",
 			enterT: personalData{
 				DocumentID:  &oid,
 				Name:        "Name",
@@ -122,7 +123,7 @@ func TestInsert(t *testing.T) {
 	wrongCTX, wCanel := context.WithCancel(context.Background())
 	wCanel()
 	m, err := Connect(ctx, dbURItest, collectionName)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *Mongodatabase
@@ -131,7 +132,7 @@ func TestInsert(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Wrong Insert oid is not valid",
+			name:       "Mongo -> Wrong Insert oid is not valid",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  "",
@@ -147,7 +148,7 @@ func TestInsert(t *testing.T) {
 				" the provided hex string is not a valid ObjectID",
 		},
 		{
-			name:       "Wrong Insert canceled context",
+			name:       "Mongo -> Wrong Insert canceled context",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  oid,
@@ -161,7 +162,7 @@ func TestInsert(t *testing.T) {
 			err: "could not add document(s) in database: context canceled",
 		},
 		{
-			name:       "Success Insert",
+			name:       "Mongo -> Success Insert",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  oid,
@@ -204,7 +205,7 @@ func TestAll(t *testing.T) {
 	cancelCTX()
 
 	m, err := Connect(ctx, dbURItest, collectionName)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *Mongodatabase
@@ -214,7 +215,7 @@ func TestAll(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Select all without errors",
+			name:       "Mongo -> Select all without errors",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -229,7 +230,7 @@ func TestAll(t *testing.T) {
 			err: "",
 		},
 		{
-			name:       "Select all with wrong context",
+			name:       "Mongo -> Select all with wrong context",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -281,7 +282,7 @@ func TestOne(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, dbURItest, collectionName)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name       string
 		collection *Mongodatabase
@@ -292,7 +293,7 @@ func TestOne(t *testing.T) {
 		err        string
 	}{
 		{
-			name:       "Select one testing",
+			name:       "Mongo -> Select one testing",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -307,7 +308,7 @@ func TestOne(t *testing.T) {
 			ctx: ctx,
 			err: "",
 		}, {
-			name:       "Wrong Select one testing",
+			name:       "Mongo -> Wrong Select one testing",
 			collection: m,
 			expectedT:  entity.PersonalData{},
 			enterT: entity.PersonalData{
@@ -356,7 +357,7 @@ func TestRemove(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, dbURItest, collectionName)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
 		collection       *Mongodatabase
@@ -367,7 +368,7 @@ func TestRemove(t *testing.T) {
 		err              string
 	}{
 		{
-			name:             "Remove document from database",
+			name:             "Mongo -> Remove document from database",
 			collection:       m,
 			expectedResponce: 1,
 			enterT: entity.PersonalData{
@@ -382,7 +383,7 @@ func TestRemove(t *testing.T) {
 			ctx:         ctx,
 			err:         "",
 		}, {
-			name:             "Fail remove document from database",
+			name:             "Mongo -> Fail remove document from database",
 			collection:       m,
 			expectedResponce: 1,
 			enterT: entity.PersonalData{
@@ -433,7 +434,7 @@ func TestUpdate(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	m, err := Connect(ctx, dbURItest, collectionName)
-	assert.NoError(t, err, "could not connect to db")
+	require.NoError(t, err, "could not connect to db")
 	tt := []struct {
 		name             string
 		collection       *Mongodatabase
@@ -444,7 +445,7 @@ func TestUpdate(t *testing.T) {
 		err              string
 	}{
 		{
-			name:       "Update Document in database",
+			name:       "Mongo -> Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  oid,
@@ -467,7 +468,7 @@ func TestUpdate(t *testing.T) {
 			err:              "",
 		},
 		{
-			name:       "Update Document in database",
+			name:       "Mongo -> Update Document in database",
 			collection: m,
 			enterT: entity.PersonalData{
 				DocumentID:  oid,
