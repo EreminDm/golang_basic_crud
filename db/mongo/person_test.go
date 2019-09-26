@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const dbURItest string = "127.0.0.1:27017"
+const dbURItest string = "localhost:27017"
 
 func TestRecive(t *testing.T) {
 	oid := primitive.NewObjectID()
