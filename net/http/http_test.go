@@ -394,7 +394,7 @@ func TestUpdate(t *testing.T) {
 			err:           "invalid character 'e' looking for beginning of value",
 		},
 		{
-			name:          "HTTP -> read body error",
+			name:          "HTTP -> wrong read body error",
 			method:        "PUT",
 			body:          []byte("e"),
 			object:        personalData{},
@@ -420,7 +420,7 @@ func TestUpdate(t *testing.T) {
 			}
 			var req *http.Request
 
-			if tc.name == "HTTP -> read body error" {
+			if tc.name == "HTTP -> wrong read body error" {
 				req = httptest.NewRequest(tc.method, "http://localhost:8000/", errReader(0))
 			} else {
 				req, err = http.NewRequest(tc.method, "http://localhost:8000/", bytes.NewReader(tc.body))
