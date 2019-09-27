@@ -70,7 +70,6 @@ func (c Controller) List(ctx context.Context, void *grpcproto.Void) (*grpcproto.
 	for _, ep := range epList {
 		p := receive(ep)
 		pList.Person = append(pList.Person, &p)
-
 	}
 	return &pList, nil
 }

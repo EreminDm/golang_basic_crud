@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	n "net"
 	"testing"
+	"time"
 
 	"github.com/EreminDm/golang_basic_crud/controller"
 	"github.com/EreminDm/golang_basic_crud/entity"
@@ -13,6 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	grpc "google.golang.org/grpc"
 )
 
 func TestNew(t *testing.T) {
@@ -38,10 +41,38 @@ func TestNew(t *testing.T) {
 }
 
 func TestConnectServer(t *testing.T) {
-	c := &controller.Personal{}
-	_, _, err := ConnectServer(c)
-	assert.NoError(t, err, "could not make correct connection")
-	//assert.Equal(t, n.Listener, l, "type is not equals want %v, got %v", n.Listener, l)
+	tt := []struct {
+		name             string
+		ctr              *controller.Personal
+		expectedListener n.Listener
+		expectedServer   *grpc.Server
+		err              string
+	}{
+		{
+			name: "GRPC -> Success connecion",
+			ctr:  &controller.Personal{},
+		},
+		{
+			name: "GRPC -> Failed connecion",
+			ctr:  &controller.Personal{},
+			err:  "could not listen to :8888: listen tcp :8888: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.",
+		},
+	}
+	for _, tc := range tt {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+
+			_, _, err := ConnectServer(tc.ctr)
+			if tc.err != "" {
+				assert.Equal(t, tc.err, err.Error(), "not equals")
+				return
+			}
+			assert.NoError(t, err, "could not make correct connection")
+			// assert.Equal(t, tc.expectedListener, lst, "listener type is not equals want %v, got %v", tc.expectedListener, lst)
+			// assert.Equal(t, tc.expectedServer, srv, "server type is not equals want %v, got %v", tc.expectedServer, srv)
+		})
+	}
+
 }
 
 func TestReceive(t *testing.T) {
@@ -270,34 +301,50 @@ func TestList(t *testing.T) {
 	ctr := new(controllerMockedObject)
 	c := New(ctr)
 
+	wrongctx, close := context.WithTimeout(context.Background(), time.Second)
+	close()
 	tt := []struct {
 		name           string
 		object         grpcproto.PersonalDataList
 		expectedObject []entity.PersonalData
+		ctx            context.Context
+		void           *grpcproto.Void
 		expectedError  error
 		err            string
 	}{
 		{
-			name:          "Success request",
+			name: "Success request",
+			ctx:  context.Background(),
+			expectedObject: []entity.PersonalData{{
+				DocumentID:  "string",
+				Name:        "name",
+				LastName:    "LastName",
+				Phone:       "123",
+				Email:       "email",
+				YearOfBirth: 1999,
+			}},
 			expectedError: nil,
 			err:           "",
 		},
-		// {
-		// 	name:          "Wrong request",
-		// 	expectedError: fmt.Errorf("error"),
-		// 	err:           "could not get personal information: error",
-		// },
+		{
+			name:           "Wrong request",
+			expectedObject: nil,
+			ctx:            wrongctx,
+			void:           nil,
+			expectedError:  errors.New("error"),
+			err:            "could not get personal information: error",
+		},
 	}
 
 	for _, tc := range tt {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			ctr.On("All", mock.Anything).Return(tc.expectedObject, tc.expectedError)
-			p, err := c.List(context.Background(), &grpcproto.Void{})
+			ctr.On("All", tc.ctx).Return(tc.expectedObject, tc.expectedError)
+			p, err := c.List(tc.ctx, tc.void)
 			if tc.err != "" {
 				assert.Equal(t,
 					tc.err,
-					err,
+					err.Error(),
 					"not equals",
 				)
 				return
