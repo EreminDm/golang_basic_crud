@@ -52,7 +52,7 @@ func TestConnectServer(t *testing.T) {
 			name: "GRPC -> Failed connecion",
 			ctr:  &controller.Personal{},
 			err: "could not listen to :8888: listen tcp :8888: bind: " +
-				"Only one usage of each socket address (protocol/network address/port) is normally permitted.",
+				"address already in use",
 		},
 	}
 	for _, tc := range tt {
