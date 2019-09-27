@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	n "net"
 	"testing"
 	"time"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	grpc "google.golang.org/grpc"
 )
 
 func TestNew(t *testing.T) {
@@ -42,11 +40,9 @@ func TestNew(t *testing.T) {
 
 func TestConnectServer(t *testing.T) {
 	tt := []struct {
-		name             string
-		ctr              *controller.Personal
-		expectedListener n.Listener
-		expectedServer   *grpc.Server
-		err              string
+		name string
+		ctr  *controller.Personal
+		err  string
 	}{
 		{
 			name: "GRPC -> Success connecion",
@@ -55,7 +51,8 @@ func TestConnectServer(t *testing.T) {
 		{
 			name: "GRPC -> Failed connecion",
 			ctr:  &controller.Personal{},
-			err:  "could not listen to :8888: listen tcp :8888: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.",
+			err: "could not listen to :8888: listen tcp :8888: bind: " +
+				"Only one usage of each socket address (protocol/network address/port) is normally permitted.",
 		},
 	}
 	for _, tc := range tt {
@@ -68,8 +65,6 @@ func TestConnectServer(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err, "could not make correct connection")
-			// assert.Equal(t, tc.expectedListener, lst, "listener type is not equals want %v, got %v", tc.expectedListener, lst)
-			// assert.Equal(t, tc.expectedServer, srv, "server type is not equals want %v, got %v", tc.expectedServer, srv)
 		})
 	}
 
