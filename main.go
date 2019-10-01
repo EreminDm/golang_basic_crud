@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/EreminDm/golang_basic_crud/controller"
-	"github.com/EreminDm/golang_basic_crud/db/mariadb"
-	"github.com/EreminDm/golang_basic_crud/db/mongo"
-	netgrpc "github.com/EreminDm/golang_basic_crud/net/grpc"
-	nethttp "github.com/EreminDm/golang_basic_crud/net/http"
+	"github.com/EreminDm/golang-basic-crud/controller"
+	"github.com/EreminDm/golang-basic-crud/db/mariadb"
+	"github.com/EreminDm/golang-basic-crud/db/mongo"
+	netgrpc "github.com/EreminDm/golang-basic-crud/net/grpc"
+	nethttp "github.com/EreminDm/golang-basic-crud/net/http"
 )
 
 // main initializes connection to database using timeout context,
