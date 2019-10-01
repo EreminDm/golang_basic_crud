@@ -1,28 +1,25 @@
 language: go
-
 go:
-- "1.13"
-
+- '1.13'
 dist: trusty
-
 services:
-  - mysql
-  - mongodb
-
+- mysql
+- mongodb
 addons:
-  mariadb: "10.4"
-
+  mariadb: '10.4'
 before_script:
-  - sleep 15
-  - go get -v github.com/rubenv/sql-migrate/...
-  - make mysql
-  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.18.0
-  - go install github.com/mattn/goveralls
-  - go get -u github.com/golang/protobuf/protoc-gen-go 
-
+- sleep 15
+- go get -v github.com/rubenv/sql-migrate/...
+- make mysql
+- curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh |
+  sh -s -- -b $(go env GOPATH)/bin v1.18.0
+- go install github.com/mattn/goveralls
+- go get -u github.com/golang/protobuf/protoc-gen-go
 script:
-  - cat /etc/hosts
-  - golangci-lint run
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
-  - goveralls -service=travis-ci -coverprofile=coverage.out
-  
+- cat /etc/hosts
+- golangci-lint run
+- go test -v -covermode=count -coverprofile=coverage.out ./...
+- goveralls -service=travis-ci -coverprofile=coverage.out
+before_install:
+- openssl aes-256-cbc -K $encrypted_bad161ded208_key -iv $encrypted_bad161ded208_iv
+  -in credentials.tar.gz.enc -out credentials.tar.gz -d
