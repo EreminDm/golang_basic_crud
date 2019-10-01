@@ -1,5 +1,5 @@
 FROM golang:1.13-alpine
-WORKDIR 
+WORKDIR /crud
 COPY . /crud
 RUN go-wrapper download
 RUN go-wrapper install
