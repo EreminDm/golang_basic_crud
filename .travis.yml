@@ -22,8 +22,7 @@ before_install:
   fi
 - gcloud -q components update 
 - if [ -a client_secret.json ]; 
-  then gcloud -q
-  auth activate-service-account --key-file client_secret.json; 
+  then gcloud -q auth activate-service-account --key-file client_secret.json; 
   fi
 before_script:
 - sleep 15
