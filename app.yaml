@@ -1,3 +1,2 @@
-steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['app', 'deploy', '--project=<app-project-name>', '--version=$SHORT_SHA']
+runtime: custom
+env: flex
