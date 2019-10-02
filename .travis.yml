@@ -37,10 +37,8 @@ script:
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
 - goveralls -service=travis-ci -coverprofile=coverage.out
-- ls ~/bin/gimmi/
-- ls ~/
-- pwd
+
 deploy:
   provider: gae
-  keyfile: ~/bin/client_secret.json
+  keyfile: /home/travis/gopath/src/github.com/EreminDm/golang_basic_crud/client_secret.json
   project: golang-basic-crud
