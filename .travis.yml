@@ -1,12 +1,38 @@
 language: go
+
 go:
 - '1.13'
+
 dist: trusty
+
 services:
 - mysql
 - mongodb
+
 addons:
   mariadb: '10.4'
+
+cache:
+  directories:
+        - $HOME/gcloud/
+
+env:
+  - PATH=$PATH:$HOME/gcloud/google-cloud-sdk/bin GOOGLE_APPLICATION_CREDENTIALS=$TRAVIS_BUILD_DIR/client_secrets.json #Other environment variables on same line 
+
+before_install:
+  - if [ ! -d $HOME/gcloud/google-cloud-sdk ]; then
+                  mkdir -p $HOME/gcloud &&
+                  wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz --directory-prefix=$HOME/gcloud &&
+                  cd $HOME/gcloud &&
+                  tar xzf google-cloud-sdk.tar.gz &&
+                  printf '\ny\n\ny\ny\n' | ./google-cloud-sdk/install.sh &&
+                  cd $TRAVIS_BUILD_DIR;
+            fi
+          - gcloud -q components update
+          - if [ -a client_secrets.json ]; then
+                  gcloud -q auth activate-service-account --key-file client_secrets.json;
+            fi
+
 before_script:
 - sleep 15
 - go get -v github.com/rubenv/sql-migrate/...
@@ -15,8 +41,14 @@ before_script:
   sh -s -- -b $(go env GOPATH)/bin v1.18.0
 - go install github.com/mattn/goveralls
 - go get -u github.com/golang/protobuf/protoc-gen-go
+
 script:
 - cat /etc/hosts
 - golangci-lint run
 - go test -v -covermode=count -coverprofile=coverage.out ./...
 - goveralls -service=travis-ci -coverprofile=coverage.out
+
+deploy:
+  provider: gae
+  keyfile: "client_secrets.json"
+  project: "golang-basic-crud"
