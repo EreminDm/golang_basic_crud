@@ -5,7 +5,6 @@ go:
 services:
 - mysql
 - mongodb
-- docker
 addons:
   mariadb: '10.4'
 cache:
@@ -38,3 +37,4 @@ deploy:
   provider: gae
   keyfile: client-secret.json
   project: golang-basic-crud
+  skip_cleanup: true  
