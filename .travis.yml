@@ -39,6 +39,7 @@ script:
 - goveralls -service=travis-ci -coverprofile=coverage.out
 - ls ~/bin/gimmi/
 - ls ~/
+- pwd
 deploy:
   provider: gae
   keyfile: ~/bin/client_secret.json
