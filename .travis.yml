@@ -34,12 +34,12 @@ before_script:
 - go install github.com/mattn/goveralls
 - go get -u github.com/golang/protobuf/protoc-gen-go
 script:
-- cat /etc/hosts
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
 - goveralls -service=travis-ci -coverprofile=coverage.out
-- ls ~/
+- ls ~/bin/
+- ls ~/gcloud/
 deploy:
   provider: gae
-  keyfile: client_secret.json
+  keyfile: ~/bin/client_secret.json
   project: golang-basic-crud
