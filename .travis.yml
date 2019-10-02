@@ -38,6 +38,7 @@ script:
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
 - goveralls -service=travis-ci -coverprofile=coverage.out
+- ls ./
 deploy:
   provider: gae
   keyfile: client_secret.json
