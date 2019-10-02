@@ -6,6 +6,7 @@ go:
 services:
 - mysql
 - mongodb
+- docker
 addons:
   mariadb: '10.4'
 cache:
@@ -20,7 +21,7 @@ before_install:
   then mkdir -p $HOME/gcloud && wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz
   --directory-prefix=$HOME/gcloud && cd $HOME/gcloud && tar xzf google-cloud-sdk.tar.gz && printf '\ny\n\ny\ny\n' | ./google-cloud-sdk/install.sh && cd $TRAVIS_BUILD_DIR;
   fi
-- gcloud components update 
+- gcloud components update kubectl
 - if [ -a client_secret.json ]; 
   then gcloud -q auth activate-service-account --key-file client_secret.json; 
   fi
