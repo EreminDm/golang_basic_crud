@@ -34,8 +34,11 @@ script:
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
 - goveralls -service=travis-ci -coverprofile=coverage.out
-deploy:
-  provider: gae
-  keyfile: client-secret.json
-  project: golang-basic-crud
-  skip_cleanup: true  
+
+after_success:
+  - make kub
+# deploy:
+#   provider: gae
+#   keyfile: client-secret.json
+#   project: golang-basic-crud
+#   skip_cleanup: true  

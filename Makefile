@@ -38,3 +38,11 @@ mysql:
 
 	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
 	sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
+
+.PHONY: kub
+kub: 
+	gcloud components install kubectl
+	#                                  projectid         cluster 
+	gcloud builds submit --tag gcr.io/golang-basic-crud/golang_basic_crud .
+	kubectl apply -f deployment.yaml
+	kubectl apply -f service.yaml

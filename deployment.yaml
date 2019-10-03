@@ -1,0 +1,27 @@
+apiVersion: v0.3
+kind: Deployment
+metadata:
+  name: golang-basic-crud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gbc
+  template:
+    metadata:
+      labels:
+        app: gbc
+    spec:
+      containers:
+      - name: gbc-app
+        image: gcr.io/golang-basic-crud/gbc:latest
+        ports:
+        - name: http
+          containerPort: 8000
+        - name: grpc
+          containerPort: 8888
+        env:
+          - name: grpc
+            value: "8888"
+          - name: http
+            value: "8000"
