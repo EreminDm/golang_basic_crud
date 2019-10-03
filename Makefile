@@ -41,7 +41,11 @@ mysql:
 
 .PHONY: kub
 kub: 
-	gcloud components install kubectl
+	wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz 
+	tar xzf google-cloud-sdk.tar.gz 
+	./google-cloud-sdk/install.sh 
+	./google-cloud-sdk/bin/gcloud init
+	gcloud -q components install kubectl
 	#                                  projectid         cluster 
 	gcloud builds submit --tag gcr.io/golang-basic-crud/golang_basic_crud .
 	kubectl apply -f deployment.yaml
