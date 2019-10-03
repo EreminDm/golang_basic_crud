@@ -1,0 +1,42 @@
+apiVersion: apps/v0.3
+kind: Deployment
+metadata:
+  name: gbc-f
+spec:
+  revisionHistoryLimit: 1
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gbc-f
+    spec:
+      containers:
+      - name: gbc-f
+        image: gcr.io/singular-hash-228518/gbc-f:v0.3
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+        - name: grpc
+          containerPort: 8888
+        resources:
+          limits:
+            cpu: 70m
+          requests:
+            cpu: 70m
+---
+apiVersion: v0.3
+kind: Service
+metadata:
+  name: gbc-f
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  - name: grpc
+    port: 8888
+    targetPort: 8888
+  selector:
+    app: gbc-f

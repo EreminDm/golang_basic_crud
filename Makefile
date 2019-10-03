@@ -39,14 +39,54 @@ mysql:
 	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
 	sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
 
-.PHONY: kub
-kub: 
-	wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz 
-	tar xzf google-cloud-sdk.tar.gz 
-	./google-cloud-sdk/install.sh -n
-	./google-cloud-sdk/bin/gcloud init
-	gcloud -q components install kubectl
-	#                                  projectid         cluster 
-	gcloud builds submit --tag gcr.io/golang-basic-crud/golang_basic_crud .
-	kubectl apply -f deployment.yaml
-	kubectl apply -f service.yaml
+.PHONY: preparekub
+preparekub:
+	if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then
+	rm -rf "$HOME/google-cloud-sdk"
+	curl https://sdk.cloud.google.com | bash > /dev/null
+	fi
+	# Promote gcloud to PATH top priority (prevent using old version fromt travis)
+	source $HOME/google-cloud-sdk/path.bash.inc
+
+	# Make sure kubectl is updated to latest version
+	gcloud components update kubectl
+
+.PHONY: gauth
+gauth:
+		@gcloud auth activate-service-account --key-file client-secret.json
+		
+.PHONY: gconfig
+gconfig:
+		@gcloud config set project golang-basic-crud
+		@gcloud container clusters \
+		get-credentials gbs \
+		--zone us-central1-a \
+		--project golang-basic-crud
+		#???
+		@gcloud auth configure-docker 		
+.PHONY: buildkub
+buildkub:
+		@docker build -t gcr.io/golang-basic-crud/gbc-f:v0.3 .
+.PHONY: runkub
+runkub:
+		@docker run -p 8000:8000 -p 8888:8888 gcr.io/golang-basic-crud/gbc-f:v0.3
+.PHONY: pushkub
+pushkub:
+		@docker push gcr.io/golang-basic-crud/gbc-f:v0.3		
+PHONY: deploykub
+deploykub: gconfig
+		@kubectl apply -f k8s.yaml
+		# https://github.com/kubernetes/kubernetes/issues/27081#issuecomment-238078103
+		@kubectl patch deployment gbc-f -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+		
+# .PHONY: kub
+# kub: 
+# 	wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz 
+# 	tar xzf google-cloud-sdk.tar.gz 
+# 	./google-cloud-sdk/install.sh -q
+# 	cd google-cloud-sdk
+# 	gcloud -q components install kubectl
+# 	#                                  projectid         cluster 
+# 	gcloud builds submit --tag gcr.io/golang-basic-crud/golang_basic_crud .
+# 	kubectl apply -f deployment.yaml
+# 	kubectl apply -f service.yaml
