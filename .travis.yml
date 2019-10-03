@@ -39,8 +39,10 @@ script:
 - go test -covermode=count -coverprofile=coverage.out ./...
 after_success:
   - goveralls -service=travis-ci -coverprofile=coverage.out
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then make preparekub; fi
-  - make gauth build push deploy
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; 
+    then make preparekub; 
+    fi
+  - make gauth buildkub pushkub deploykub
   # - make kub
 # deploy:
 #   provider: gae
