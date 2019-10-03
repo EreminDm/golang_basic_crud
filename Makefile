@@ -43,7 +43,7 @@ mysql:
 kub: 
 	wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz 
 	tar xzf google-cloud-sdk.tar.gz 
-	./google-cloud-sdk/install.sh 
+	./google-cloud-sdk/install.sh -n
 	./google-cloud-sdk/bin/gcloud init
 	gcloud -q components install kubectl
 	#                                  projectid         cluster 
