@@ -42,8 +42,8 @@ mysql:
 .PHONY: kub
 kub: 
 	ls ~/gcloud
-	$HOME/gcloud/google-cloud-sdk/install.sh
-	$HOME/gcloud/google-cloud-sdk/bin/gcloud init
+	~/gcloud/gcloud/google-cloud-sdk/install.sh
+	~/gcloud/gcloud/google-cloud-sdk/bin/gcloud init
 	gcloud components install kubectl
 	#                                  projectid         cluster 
 	gcloud builds submit --tag gcr.io/golang-basic-crud/golang_basic_crud .

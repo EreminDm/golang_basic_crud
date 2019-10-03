@@ -33,9 +33,10 @@ before_script:
 script:
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
-- goveralls -service=travis-ci -coverprofile=coverage.out
+
 
 after_success:
+  - goveralls -service=travis-ci -coverprofile=coverage.out
   - make kub
 # deploy:
 #   provider: gae
