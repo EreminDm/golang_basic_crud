@@ -1,4 +1,3 @@
----
 linters-settings:
   gosec:
     settings:
@@ -39,6 +38,7 @@ run:
   - test/testdata_etc
   - pkg/golinters/goanalysis/(checker|passes)
 issues:
+  # exclude-use-default: false
   exclude-rules:
   - text: weak cryptographic primitive    
     linters:
