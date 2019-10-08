@@ -39,9 +39,19 @@ mysql:
 	sql-migrate status -config=db/mariadb/dbconfig.yml -env mysql
 	sql-migrate up -config=db/mariadb/dbconfig.yml -env mysql
 
+.PHONY: installkub
+installkub:
+	#!/bin/sh
+	curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+	chmod +x ./kubectl
+	sudo mv ./kubectl /usr/local/bin/kubectl
+
+
 .PHONY: preparekub
 preparekub:
-	if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf "$HOME/google-cloud-sdk" && curl https://sdk.cloud.google.com | bash > /dev/null
+	if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then
+	rm -rf "$HOME/google-cloud-sdk"
+	curl https://sdk.cloud.google.com | bash > /dev/null
 	fi
 	# Promote gcloud to PATH top priority (prevent using old version fromt travis)
 	source $HOME/google-cloud-sdk/path.bash.inc
