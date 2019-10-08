@@ -10,42 +10,24 @@ addons:
   mariadb: '10.4'
 cache:
   directories:
-  # We cache the SDK so we don't have to download it again on subsequent builds.
-  - $HOME/google-cloud-sdk
+  - "$HOME/google-cloud-sdk"
 env:
   global:
-  # Do not prompt for user input when using any SDK methods.
   - CLOUDSDK_CORE_DISABLE_PROMPTS=1
-
 before_install:
 - openssl aes-256-cbc -K $encrypted_bad161ded208_key -iv $encrypted_bad161ded208_iv
   -in client-secret.json.enc -out client-secret.json -d
-# - if [ ! -d $HOME/gcloud/google-cloud-sdk ]; 
-#   then mkdir -p $HOME/gcloud && wget https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz --directory-prefix=$HOME/gcloud && cd $HOME/gcloud && tar xzf google-cloud-sdk.tar.gz && printf '\ny\n\ny\ny\n' | ./google-cloud-sdk/install.sh && gcloud -q components install kubectl && cd $TRAVIS_BUILD_DIR;
-#   fi
-# - if [ -a client_secret.json ]; 
-#   then gcloud -q auth activate-service-account --key-file client_secret.json; 
-#   fi
 before_script:
-# - sleep 15
 - go get -v github.com/rubenv/sql-migrate/...
 - make mysql
 - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh |
   sh -s -- -b $(go env GOPATH)/bin v1.18.0
 - go install github.com/mattn/goveralls
-# - go get -u github.com/golang/protobuf/protoc-gen-go
 script:
 - golangci-lint run
 - go test -covermode=count -coverprofile=coverage.out ./...
 after_success:
-  - goveralls -service=travis-ci -coverprofile=coverage.out
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; 
-    then make preparekub; 
-    fi
-  - make gauth buildkub pushkub deploykub
-  # - make kub
-# deploy:
-#   provider: gae
-#   keyfile: client-secret.json
-#   project: golang-basic-crud
-#   skip_cleanup: true  
+- goveralls -service=travis-ci -coverprofile=coverage.out
+- if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+  make preparekub; fi
+- make gauth buildkub pushkub deploykub
