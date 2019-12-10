@@ -23,5 +23,3 @@ Releases are available on the [releases page](https://github.com/EreminDm/golang
 
 You can contact the [author](https://github.com/EreminDm) of golang_basic_crud
 by [eremin.dm@gmail.com](mailto:eremin.dm@gmail.com).
-
- Filter out icx\ domain when user attempts to register
